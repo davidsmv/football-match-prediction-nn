@@ -1,0 +1,6 @@
+undetected-chromedriver
+selenium
+ipykernel
+pandas==3.0.1
+lxml
+beautifulsoup4
