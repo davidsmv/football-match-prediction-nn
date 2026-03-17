@@ -25,7 +25,7 @@ A machine learning project for predicting Premier League football match outcomes
 pip install -r requirements.txt
 
 # Run the scraper
-python app/services/fbref_data_scraper.py
+python src/services/fbref_data_scraper.py
 ```
 
 **Note:** Requires Chrome browser installed. The scraper uses `undetected-chromedriver` to manage the ChromeDriver binary automatically.
@@ -33,7 +33,7 @@ python app/services/fbref_data_scraper.py
 ## Project Structure
 
 ```
-app/
+src/
 ├── services/
 │   ├── fbref_data_scraper.py  # Main scraper
 │   └── notebooks/              # Data exploration notebooks
