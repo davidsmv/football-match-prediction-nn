@@ -118,11 +118,28 @@ class FbrefDataScraper:
 if __name__ == "__main__":
     fbref_data_scraper = FbrefDataScraper()
     try:
-        season = "2023-2024"  # You can change this to scrape different seasons
-        df = fbref_data_scraper.get_data(season=season)
-        logger.info(f"\n{df.head()}")
-        logger.info(f"\nShape: {df.shape}")
-        fbref_data_scraper.save_to_csv(df, filename=f"fixtures_{season}.csv")
+        # Data since 2015-2016
+        seasons = [
+            "2015-2016",
+            "2016-2017",
+            "2017-2018",
+            "2018-2019",
+            "2019-2020",
+            "2020-2021",
+            "2021-2022",
+            "2022-2023",
+            "2023-2024",
+            "2024-2025",
+            "2025-2026"
+
+        ]
+        # season = "2023-2024"  # You can change this to scrape different seasons
+        for season in seasons:
+            df = fbref_data_scraper.get_data(season=season)
+            logger.info(f"\n{df.head()}")
+            logger.info(f"\nShape: {df.shape}")
+            fbref_data_scraper.save_to_csv(
+                df, filename=f"fixtures_{season}.csv")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
     finally:
