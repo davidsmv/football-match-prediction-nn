@@ -34,7 +34,9 @@ class FbrefDataScraper:
                 logger.info("Cloudflare challenge passed")
                 return
             time.sleep(2)
-        raise TimeoutError("Cloudflare challenge did not resolve within timeout")
+        raise TimeoutError(
+            "Cloudflare challenge did not resolve within timeout"
+        )
 
     def get_data(self, season: str = "2024-2025") -> pd.DataFrame:
         url = (
@@ -49,7 +51,9 @@ class FbrefDataScraper:
 
         # Wait until the fixtures table is present using its ID
         WebDriverWait(self.driver, 30).until(
-            EC.presence_of_element_located((By.XPATH, f'//*[@id="{table_id}"]'))
+            EC.presence_of_element_located(
+                (By.XPATH, f'//*[@id="{table_id}"]')
+            )
         )
 
         # Get fully-rendered outerHTML from the live DOM via JavaScript
@@ -102,7 +106,8 @@ class FbrefDataScraper:
         logger.info(f"Found fixtures table with shape: {df.shape}")
         return df
 
-    def save_to_csv(self, df: pd.DataFrame, filename: str = "fixtures.csv") -> Path:
+    def save_to_csv(
+            self, df: pd.DataFrame, filename: str = "fixtures.csv") -> Path:
         DATA_DIR.mkdir(parents=True, exist_ok=True)
         output_path = DATA_DIR / filename
         df.to_csv(output_path, index=False)
@@ -133,7 +138,8 @@ if __name__ == "__main__":
             "2025-2026"
 
         ]
-        # season = "2023-2024"  # You can change this to scrape different seasons
+        # season = "2023-2024" 
+        # # You can change this to scrape different seasons
         for season in seasons:
             df = fbref_data_scraper.get_data(season=season)
             logger.info(f"\n{df.head()}")
