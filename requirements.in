@@ -5,3 +5,4 @@ pandas==3.0.1
 matplotlib
 lxml
 beautifulsoup4
+seaborn
