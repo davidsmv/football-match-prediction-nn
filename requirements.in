@@ -6,3 +6,4 @@ matplotlib
 lxml
 beautifulsoup4
 seaborn
+scikit-learn
