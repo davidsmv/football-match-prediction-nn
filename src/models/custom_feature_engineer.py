@@ -92,7 +92,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         )
         X = self._one_hot_encode_column(X, "referee", prefix="referee")
         return X
-    
+
     def add_venue_form_last_n(
         self,
         X: pd.DataFrame,
@@ -121,7 +121,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
             .mul(-1)
         )
         return out
-    
+
     def add_team_form_last_n(
         self,
         X: pd.DataFrame,
@@ -205,7 +205,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         columns_to_drop = [
             "weekday",
             "match_report",
-            "venue",  #  Because the home team is included so it will be redundant and cause multicollinearity
+            "venue",  # Because the home team is included so it will be redundant and cause multicollinearity
             "time",
             "date",
         ]
