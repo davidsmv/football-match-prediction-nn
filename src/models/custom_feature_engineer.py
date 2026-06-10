@@ -223,8 +223,10 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         X = X.copy()
         X = self._add_season_feature(X)
         X = self._dates_to_numeric(X)
-        X = self._add_cyclical_feature(X, "month", period=12, drop_original=True)
-        X = self._add_cyclical_feature(X, "hour", period=24, drop_original=True)
+        X = self._add_cyclical_feature(
+            X, "month", period=12, drop_original=True)
+        X = self._add_cyclical_feature(
+            X, "hour", period=24, drop_original=True)
         X = self._one_hot_encode_column(X, "day")
         X = self._encode_referee(X)
         X = self._normalize_column_names(X)
