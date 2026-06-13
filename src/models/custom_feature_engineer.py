@@ -217,6 +217,9 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = self._normalize_column_names(X)
         self._fit_referee_encoder(X)
+        X = self.add_venue_form_last_n(X)
+        X = self.add_team_form_last_n(X)
+
         return self
 
     def transform(self, X):
