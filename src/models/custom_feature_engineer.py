@@ -93,6 +93,21 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         X = self._one_hot_encode_column(X, "referee", prefix="referee")
         return X
 
+    def _label_home_outcome(self, score):
+        if pd.isna(score):
+            return None
+        try:
+            home_score, away_score = map(int, score.split("–"))
+            if home_score > away_score:
+                return 1
+            elif home_score < away_score:
+                return -1
+            else:
+                return 0
+        except Exception as e:
+            print(f"Error encoding score '{score}': {e}")
+            return None
+
     def add_venue_form_last_n(
         self,
         X: pd.DataFrame,
@@ -109,6 +124,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         - away_team_away_matches_form_balance_last_n
         """
         out = X.copy()
+        out["home_outcome"] = out["score"].apply(self._label_home_outcome)
         out[f"home_team_home_matches_form_balance_last_{n}"] = (
             out.groupby([season_col, home_col])[outcome_col]
             .transform(lambda s: s.shift(1).rolling(n, min_periods=1).sum())
@@ -134,6 +150,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         away_col: str = "away",
     ) -> pd.DataFrame:
         out = X.copy()
+        out["home_outcome"] = out["score"].apply(self._label_home_outcome)
 
         # Stable match id for merging features back
         out["_match_id"] = out.index
