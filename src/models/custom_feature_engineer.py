@@ -234,14 +234,15 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = self._normalize_column_names(X)
         self._fit_referee_encoder(X)
-        X = self.add_venue_form_last_n(X)
-        X = self.add_team_form_last_n(X)
 
         return self
 
     def transform(self, X):
         X = X.copy()
+        X = self._normalize_column_names(X)
         X = self._add_season_feature(X)
+        X = self.add_venue_form_last_n(X) # TODO logic in fit transform in transform
+        X = self.add_team_form_last_n(X)
         X = self._dates_to_numeric(X)
         X = self._add_cyclical_feature(
             X, "month", period=12, drop_original=True)
@@ -249,7 +250,6 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
             X, "hour", period=24, drop_original=True)
         X = self._one_hot_encode_column(X, "day")
         X = self._encode_referee(X)
-        X = self._normalize_column_names(X)
         # X = self._drop_unnecessary_columns(X)
         return X
 
