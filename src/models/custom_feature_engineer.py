@@ -7,6 +7,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
     def __init__(self, min_referee_matches=20):
         self.min_referee_matches = min_referee_matches
         self.frequent_referees_ = set()
+        self.out = pd.DataFrame()  # Store intermediate results for debugging
 
     def _normalize_column_names(self, X):
         X = X.copy()
@@ -222,7 +223,9 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         columns_to_drop = [
             "weekday",
             "match_report",
-            "venue",  # Because the home team is included so it will be redundant and cause multicollinearity
+            # Because the home team is included so it will be redundant
+            # and cause multicollinearity
+            "venue",
             "time",
             "date",
         ]
@@ -234,6 +237,8 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = self._normalize_column_names(X)
         self._fit_referee_encoder(X)
+        X = self.add_venue_form_last_n(X)  # TODO logic in fit transform in transform
+        X = self.add_team_form_last_n(X)
 
         return self
 
@@ -241,7 +246,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         X = X.copy()
         X = self._normalize_column_names(X)
         X = self._add_season_feature(X)
-        X = self.add_venue_form_last_n(X) # TODO logic in fit transform in transform
+        X = self.add_venue_form_last_n(X)  # TODO logic in fit transform in transform
         X = self.add_team_form_last_n(X)
         X = self._dates_to_numeric(X)
         X = self._add_cyclical_feature(
