@@ -137,7 +137,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
             .fillna(0)
             .mul(-1)
         )
-        return out
+        setattr(self, f"df_last_{n}", out)
 
     def add_team_form_last_n(
         self,
@@ -215,7 +215,8 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         out = out.merge(home_form, on=["_match_id", home_col], how="left")
         out = out.merge(away_form, on=["_match_id", away_col], how="left")
 
-        return out.drop(columns=["_match_id", "_kickoff_dt"])
+        out = out.drop(columns=["_match_id", "_kickoff_dt"])
+        setattr(self, f"df_team_form_last_{n}", out)
 
     def _drop_unnecessary_columns(self, X):
         X = X.copy()
