@@ -139,6 +139,58 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         )
         setattr(self, f"df_last_{n}", out)
 
+    def add_columns_for_venue_form_last_n(self, X):
+        # Get all the dataframes created by add_venue_form_last_n for different n values
+        venue_form_attrs = [
+            attr_name
+            for attr_name in dir(self)
+            if attr_name.startswith("df_last_")
+        ]
+
+        # Merge all the venue form dataframes on the common columns
+        merged_df = X.copy()
+        for attr_name in venue_form_attrs:
+            n = int(attr_name.split("_")[-1])
+            df_with_form = getattr(self, attr_name)
+            home_form_col = f"home_team_home_matches_form_balance_last_{n}"
+            away_form_col = f"away_team_away_matches_form_balance_last_{n}"
+
+            merged_df = merged_df.merge(
+                df_with_form[["season", "home", "away", home_form_col, away_form_col]],
+                on=["season", "home", "away"],
+                how="left"
+            )
+
+            # For future/unseen matches, fill with the most recent known form
+            # for that team in that season from the training data
+            if merged_df[home_form_col].isna().any():
+                latest_home = (
+                    df_with_form.sort_values("date")
+                    .groupby(["season", "home"])[home_form_col]
+                    .last()
+                    .reset_index()
+                    .rename(columns={home_form_col: "_fill"})
+                )
+                fill_vals = merged_df[["season", "home"]].merge(
+                    latest_home, on=["season", "home"], how="left"
+                )["_fill"].values
+                merged_df[home_form_col] = merged_df[home_form_col].fillna(fill_vals)
+
+            if merged_df[away_form_col].isna().any():
+                latest_away = (
+                    df_with_form.sort_values("date")
+                    .groupby(["season", "away"])[away_form_col]
+                    .last()
+                    .reset_index()
+                    .rename(columns={away_form_col: "_fill"})
+                )
+                fill_vals = merged_df[["season", "away"]].merge(
+                    latest_away, on=["season", "away"], how="left"
+                )["_fill"].values
+                merged_df[away_form_col] = merged_df[away_form_col].fillna(fill_vals)
+
+        return merged_df
+
     def add_team_form_last_n(
         self,
         X: pd.DataFrame,
@@ -218,6 +270,57 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         out = out.drop(columns=["_match_id", "_kickoff_dt"])
         setattr(self, f"df_team_form_last_{n}", out)
 
+    def add_columns_for_team_form_last_n(self, X):
+        # Get all the dataframes created by add_team_form_last_n for different n values
+        team_form_attrs = [
+            attr_name
+            for attr_name in dir(self)
+            if attr_name.startswith("df_team_form_last_")
+        ]
+
+        merged_df = X.copy()
+        for attr_name in team_form_attrs:
+            n = int(attr_name.split("_")[-1])
+            df_with_form = getattr(self, attr_name)
+            home_form_col = f"home_team_overall_form_balance_last_{n}"
+            away_form_col = f"away_team_overall_form_balance_last_{n}"
+
+            merged_df = merged_df.merge(
+                df_with_form[["season", "home", "away", home_form_col, away_form_col]],
+                on=["season", "home", "away"],
+                how="left"
+            )
+
+            # For future/unseen matches, fill with the most recent known form
+            # for that team in that season from the training data
+            if merged_df[home_form_col].isna().any():
+                latest_home = (
+                    df_with_form.sort_values("date")
+                    .groupby(["season", "home"])[home_form_col]
+                    .last()
+                    .reset_index()
+                    .rename(columns={home_form_col: "_fill"})
+                )
+                fill_vals = merged_df[["season", "home"]].merge(
+                    latest_home, on=["season", "home"], how="left"
+                )["_fill"].values
+                merged_df[home_form_col] = merged_df[home_form_col].fillna(fill_vals)
+
+            if merged_df[away_form_col].isna().any():
+                latest_away = (
+                    df_with_form.sort_values("date")
+                    .groupby(["season", "away"])[away_form_col]
+                    .last()
+                    .reset_index()
+                    .rename(columns={away_form_col: "_fill"})
+                )
+                fill_vals = merged_df[["season", "away"]].merge(
+                    latest_away, on=["season", "away"], how="left"
+                )["_fill"].values
+                merged_df[away_form_col] = merged_df[away_form_col].fillna(fill_vals)
+
+        return merged_df
+
     def _drop_unnecessary_columns(self, X):
         X = X.copy()
         # TODO check if one of them are neccesary for the other featues.
@@ -237,18 +340,24 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
         X = self._normalize_column_names(X)
+        X = self._add_season_feature(X)
         self._fit_referee_encoder(X)
-        X = self.add_venue_form_last_n(X)  # TODO logic in fit transform in transform
-        X = self.add_team_form_last_n(X)
-
+        self.add_venue_form_last_n(X, n=1)
+        self.add_team_form_last_n(X, n=1)
+        self.add_venue_form_last_n(X, n=3)
+        self.add_team_form_last_n(X, n=3)
+        self.add_venue_form_last_n(X, n=5)
+        self.add_team_form_last_n(X, n=5)
+        self.add_venue_form_last_n(X, n=10)
+        self.add_team_form_last_n(X, n=10)
         return self
 
     def transform(self, X):
         X = X.copy()
         X = self._normalize_column_names(X)
         X = self._add_season_feature(X)
-        X = self.add_venue_form_last_n(X)  # TODO logic in fit transform in transform
-        X = self.add_team_form_last_n(X)
+        X = self.add_columns_for_venue_form_last_n(X)
+        X = self.add_columns_for_team_form_last_n(X)
         X = self._dates_to_numeric(X)
         X = self._add_cyclical_feature(
             X, "month", period=12, drop_original=True)
