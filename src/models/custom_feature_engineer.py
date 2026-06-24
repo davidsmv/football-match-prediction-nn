@@ -332,6 +332,8 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
             "venue",
             "time",
             "date",
+            "score",
+            "attendance",
         ]
         existing_cols_to_drop = [
             col for col in columns_to_drop if col in X.columns
@@ -365,7 +367,6 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
             X, "hour", period=24, drop_original=True)
         X = self._one_hot_encode_column(X, "day")
         X = self._encode_referee(X)
-        # X = self._drop_unnecessary_columns(X)
+        X = self._drop_unnecessary_columns(X)
+        X = self._normalize_column_names(X)
         return X
-
-        # TODO create the previous features here
