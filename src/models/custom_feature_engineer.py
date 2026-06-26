@@ -4,9 +4,12 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
-    def __init__(self, min_referee_matches=20):
-        self.min_referee_matches = min_referee_matches
+    def __init__(self, rare_threshold_percentile=25):
+        self.rare_threshold_percentile = rare_threshold_percentile
         self.frequent_referees_ = set()
+        self.frequent_teams_ = set()
+        self.min_referee_matches_ = None
+        self.min_team_matches_ = None
         self.out = pd.DataFrame()  # Store intermediate results for debugging
 
     def _normalize_column_names(self, X):
@@ -71,14 +74,44 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
 
         return X
 
+    def _fit_team_encoder(self, X):
+        # Count appearances across both home and away columns
+        home_counts = X["home"].fillna("Other").value_counts()
+        away_counts = X["away"].fillna("Other").value_counts()
+        total_counts = home_counts.add(away_counts, fill_value=0)
+        # Threshold = percentile of the count distribution
+        self.min_team_matches_ = np.percentile(
+            total_counts.values, self.rare_threshold_percentile
+        )
+        self.frequent_teams_ = set(
+            total_counts[total_counts >= self.min_team_matches_].index
+        )
+
+    def _encode_teams(self, X):
+        X = X.copy()
+        # Rare teams (below min_team_matches) are grouped into "Other"
+        X["home"] = X["home"].fillna("Other").where(
+            X["home"].isin(self.frequent_teams_), other="Other"
+        )
+        X["away"] = X["away"].fillna("Other").where(
+            X["away"].isin(self.frequent_teams_), other="Other"
+        )
+        X = self._one_hot_encode_column(X, "home", prefix="home_team")
+        X = self._one_hot_encode_column(X, "away", prefix="away_team")
+        return X
+
     def _fit_referee_encoder(self, X):
         if "referee" not in X.columns:
             self.frequent_referees_ = set()
             return
 
         referee_counts = X["referee"].fillna("Other").value_counts()
+        # Threshold = percentile of the count distribution
+        self.min_referee_matches_ = np.percentile(
+            referee_counts.values, self.rare_threshold_percentile
+        )
         self.frequent_referees_ = set(
-            referee_counts[referee_counts >= self.min_referee_matches].index
+            referee_counts[referee_counts >= self.min_referee_matches_].index
         )
 
     def _encode_referee(self, X):
@@ -344,6 +377,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         X = self._normalize_column_names(X)
         X = self._add_season_feature(X)
         self._fit_referee_encoder(X)
+        self._fit_team_encoder(X)
         self.add_venue_form_last_n(X, n=1)
         self.add_team_form_last_n(X, n=1)
         self.add_venue_form_last_n(X, n=3)
@@ -368,5 +402,6 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         X = self._one_hot_encode_column(X, "day")
         X = self._encode_referee(X)
         X = self._drop_unnecessary_columns(X)
+        X = self._encode_teams(X)
         X = self._normalize_column_names(X)
         return X
