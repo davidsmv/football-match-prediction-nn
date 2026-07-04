@@ -386,7 +386,12 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         self.add_team_form_last_n(X, n=5)
         self.add_venue_form_last_n(X, n=10)
         self.add_team_form_last_n(X, n=10)
+        Xt = self.transform(X.copy())
+        self.feature_names_out_ = Xt.columns.to_list()
         return self
+
+    def get_feature_names_out(self, input_features=None):
+        return self.feature_names_out_
 
     def transform(self, X):
         X = X.copy()
