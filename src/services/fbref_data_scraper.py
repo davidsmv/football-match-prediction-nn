@@ -1,4 +1,7 @@
 import logging
+import platform
+import re
+import subprocess
 import time
 from pathlib import Path
 
@@ -15,6 +18,39 @@ logging.basicConfig(level=logging.INFO)
 DATA_DIR = Path(__file__).parent.parent / "data"
 
 
+def _detect_chrome_major_version() -> int | None:
+    """Detect the installed Chrome's major version.
+
+    `undetected_chromedriver` doesn't inspect the locally installed Chrome when
+    `version_main` is omitted - it just grabs the latest ChromeDriver release,
+    which can be newer than the browser actually installed and cause a
+    SessionNotCreatedException. Detecting the real version lets us pin
+    `version_main` to match.
+    """
+    try:
+        if platform.system() == "Windows":
+            import winreg
+
+            with winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER, r"Software\Google\Chrome\BLBeacon"
+            ) as key:
+                version, _ = winreg.QueryValueEx(key, "version")
+        else:
+            binary = uc.find_chrome_executable() or "google-chrome"
+            output = subprocess.check_output(
+                [binary, "--version"], stderr=subprocess.DEVNULL, text=True
+            )
+            match = re.search(r"(\d+)\.", output)
+            version = match.group(0) if match else None
+
+        if not version:
+            return None
+        return int(str(version).split(".")[0])
+    except Exception as exc:
+        logger.warning("Could not auto-detect installed Chrome version: %s", exc)
+        return None
+
+
 class FbrefDataScraper:
     def __init__(self):
         options = uc.ChromeOptions()
@@ -22,7 +58,15 @@ class FbrefDataScraper:
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
         options.add_argument("--disable-software-rasterizer")
-        self.driver = uc.Chrome(options=options, version_main=145)
+
+        chrome_version = _detect_chrome_major_version()
+        if chrome_version:
+            logger.info("Detected installed Chrome major version: %s", chrome_version)
+        else:
+            logger.warning(
+                "Falling back to latest ChromeDriver; version mismatch is possible."
+            )
+        self.driver = uc.Chrome(options=options, version_main=chrome_version)
 
     def _wait_for_cloudflare(self, timeout: int = 60):
         """Wait for Cloudflare challenge to resolve before proceeding."""
@@ -125,16 +169,16 @@ if __name__ == "__main__":
     try:
         # Data since 2015-2016
         seasons = [
-            "2015-2016",
-            "2016-2017",
-            "2017-2018",
-            "2018-2019",
-            "2019-2020",
-            "2020-2021",
-            "2021-2022",
-            "2022-2023",
-            "2023-2024",
-            "2024-2025",
+            # "2015-2016",
+            # "2016-2017",
+            # "2017-2018",
+            # "2018-2019",
+            # "2019-2020",
+            # "2020-2021",
+            # "2021-2022",
+            # "2022-2023",
+            # "2023-2024",
+            # "2024-2025",
             "2025-2026"
 
         ]
@@ -150,9 +194,3 @@ if __name__ == "__main__":
         logger.error(f"An error occurred: {e}")
     finally:
         fbref_data_scraper.close()
-
-
-# TODO
-# 1. Think about how make the prediction
-# 2. make the current code useful for different years
-# Find where is the error in the code and fix it

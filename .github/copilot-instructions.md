@@ -25,7 +25,7 @@ pip install -r requirements.txt
 python src/services/fbref_data_scraper.py
 ```
 
-Requires Chrome installed locally — `undetected-chromedriver` manages the ChromeDriver binary. The `version_main` parameter in `FbrefDataScraper.__init__` must match the installed Chrome major version.
+Requires Chrome installed locally — `undetected-chromedriver` manages the ChromeDriver binary. `FbrefDataScraper.__init__` auto-detects the installed Chrome's major version (via the Windows registry, or `chrome --version` elsewhere) and pins `version_main` to it, since `undetected-chromedriver`'s own auto mode just grabs the latest ChromeDriver release rather than matching the local browser.
 
 ## Conventions
 
