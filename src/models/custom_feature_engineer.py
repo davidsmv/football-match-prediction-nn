@@ -173,7 +173,8 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         setattr(self, f"df_last_{n}", out)
 
     def add_columns_for_venue_form_last_n(self, X):
-        # Get all the dataframes created by add_venue_form_last_n for different n values
+        # Get all the dataframes created by add_venue_form_last_n for different
+        # n values
         venue_form_attrs = [
             attr_name
             for attr_name in dir(self)
@@ -189,7 +190,12 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
             away_form_col = f"away_team_away_matches_form_balance_last_{n}"
 
             merged_df = merged_df.merge(
-                df_with_form[["season", "home", "away", home_form_col, away_form_col]],
+                df_with_form[
+                    [
+                        "season", "home", "away",
+                        home_form_col, away_form_col
+                    ]
+                ],
                 on=["season", "home", "away"],
                 how="left"
             )
@@ -207,7 +213,9 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
                 fill_vals = merged_df[["season", "home"]].merge(
                     latest_home, on=["season", "home"], how="left"
                 )["_fill"].values
-                merged_df[home_form_col] = merged_df[home_form_col].fillna(fill_vals)
+                merged_df[home_form_col] = (
+                    merged_df[home_form_col].fillna(fill_vals)
+                )
 
             if merged_df[away_form_col].isna().any():
                 latest_away = (
@@ -220,7 +228,9 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
                 fill_vals = merged_df[["season", "away"]].merge(
                     latest_away, on=["season", "away"], how="left"
                 )["_fill"].values
-                merged_df[away_form_col] = merged_df[away_form_col].fillna(fill_vals)
+                merged_df[away_form_col] = (
+                    merged_df[away_form_col].fillna(fill_vals)
+                )
 
         return merged_df
 
@@ -304,7 +314,8 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         setattr(self, f"df_team_form_last_{n}", out)
 
     def add_columns_for_team_form_last_n(self, X):
-        # Get all the dataframes created by add_team_form_last_n for different n values
+        # Get all the dataframes created by add_team_form_last_n for different
+        # n values
         team_form_attrs = [
             attr_name
             for attr_name in dir(self)
@@ -319,7 +330,12 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
             away_form_col = f"away_team_overall_form_balance_last_{n}"
 
             merged_df = merged_df.merge(
-                df_with_form[["season", "home", "away", home_form_col, away_form_col]],
+                df_with_form[
+                    [
+                        "season", "home", "away",
+                        home_form_col, away_form_col
+                    ]
+                ],
                 on=["season", "home", "away"],
                 how="left"
             )
@@ -337,7 +353,9 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
                 fill_vals = merged_df[["season", "home"]].merge(
                     latest_home, on=["season", "home"], how="left"
                 )["_fill"].values
-                merged_df[home_form_col] = merged_df[home_form_col].fillna(fill_vals)
+                merged_df[home_form_col] = (
+                    merged_df[home_form_col].fillna(fill_vals)
+                )
 
             if merged_df[away_form_col].isna().any():
                 latest_away = (
@@ -350,13 +368,15 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
                 fill_vals = merged_df[["season", "away"]].merge(
                     latest_away, on=["season", "away"], how="left"
                 )["_fill"].values
-                merged_df[away_form_col] = merged_df[away_form_col].fillna(fill_vals)
+                merged_df[away_form_col] = (
+                    merged_df[away_form_col].fillna(fill_vals)
+                )
 
         return merged_df
 
     def _drop_unnecessary_columns(self, X):
         X = X.copy()
-        # TODO check if one of them are neccesary for the other featues.
+        # TODO check if one of them are necessary for the other features.
         columns_to_drop = [
             "weekday",
             "match_report",
