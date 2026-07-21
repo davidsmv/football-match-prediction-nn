@@ -406,7 +406,7 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         self.add_team_form_last_n(X, n=5)
         self.add_venue_form_last_n(X, n=10)
         self.add_team_form_last_n(X, n=10)
-        Xt = self.transform(X.copy())
+        Xt = self._transform(X.copy())
         self.feature_names_out_ = Xt.columns.to_list()
         return self
 
@@ -414,6 +414,9 @@ class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
         return self.feature_names_out_
 
     def transform(self, X):
+        return self._transform(X)
+
+    def _transform(self, X):
         X = X.copy()
         X = self._normalize_column_names(X)
         X = self._add_season_feature(X)
