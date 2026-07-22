@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-class CustomFeatureEngineer(BaseEstimator, TransformerMixin):
+class FeatureTransformer(BaseEstimator, TransformerMixin):
     def __init__(self, rare_threshold_percentile=25):
         self.rare_threshold_percentile = rare_threshold_percentile
         self.frequent_referees_ = set()
