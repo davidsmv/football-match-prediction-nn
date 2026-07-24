@@ -12,3 +12,4 @@ beautifulsoup4
 seaborn
 scikit-learn
 optuna
+loguru
