@@ -22,7 +22,7 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         )
         y_t = (
             torch.tensor(y, dtype=torch.float32)
-            .reshape(-1, 1)
+            .view(-1, 1)
             .to(self.device_)
         )
 
@@ -35,3 +35,4 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         pass
 
 # TODO check on internet simple MLP classifier implementation in PyTorch and sklearn integration.
+# https://medium.com/@mn05052002/building-a-simple-mlp-from-scratch-using-pytorch-7d50ca66512b
