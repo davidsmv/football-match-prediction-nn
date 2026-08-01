@@ -36,3 +36,5 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
 
 # TODO check on internet simple MLP classifier implementation in PyTorch and sklearn integration.
 # https://medium.com/@mn05052002/building-a-simple-mlp-from-scratch-using-pytorch-7d50ca66512b
+
+# TODO search how they explained in the course or how the code in the code worked
