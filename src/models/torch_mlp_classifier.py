@@ -16,19 +16,36 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         self.output_size = output_size
         self._build_model()
 
-    def _build_model(self):
+    def _build_model(self) -> None:
         self.W1 = torch.randn(
-            self.input_size, self.hidden_size, requires_grad=True
+            self.input_size,
+            self.hidden_size,
+            requires_grad=True,
+            device=self.device
         )
         self.b1 = torch.randn(
-            self.hidden_size, requires_grad=True
+            self.hidden_size,
+            requires_grad=True,
+            device=self.device
         )
         self.W2 = torch.randn(
-            self.hidden_size, self.output_size, requires_grad=True
+            self.hidden_size,
+            self.output_size,
+            requires_grad=True,
+            device=self.device
         )
         self.b2 = torch.randn(
-            self.output_size, requires_grad=True
+            self.output_size,
+            requires_grad=True,
+            device=self.device
         )
+
+    def forward(self, X):
+        self.z1 = torch.matmul(X, self.W1) + self.b1
+        self.a1 = torch.sigmoid(self.z1)  # Hidden layer activation
+        self.z2 = torch.matmul(self.a1, self.W2) + self.b2
+        self.a2 = torch.sigmoid(self.z2)  # Output layer activation
+        return self.a2
 
     def fit(self, X, y):
         X_t = (
