@@ -41,11 +41,32 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         )
 
     def forward(self, X):
-        self.z1 = torch.matmul(X, self.W1) + self.b1
-        self.a1 = torch.sigmoid(self.z1)  # Hidden layer activation
-        self.z2 = torch.matmul(self.a1, self.W2) + self.b2
-        self.a2 = torch.sigmoid(self.z2)  # Output layer activation
-        return self.a2
+        # Input -> hidden layer
+        self.z1 = X @ self.W1 + self.b1
+        self.a1 = torch.relu(self.z1)
+
+        # Hidden layer -> output layer
+        self.z2 = self.a1 @ self.W2 + self.b2
+
+        # Return raw logits
+        return self.z2
+
+    def backward(self, X, y, output, lr=0.01):
+        m = X.shape[0]
+        dz2 = output - y
+        dW2 = torch.matmul(self.a1.T, dz2)
+        db2 = torch.sum(dz2, axis=0) / m
+
+        da1 = torch.matmul(dz2, self.W2.T)
+        dz1 = da1 * (self.a1 * (1 - self.a1))
+        dW1 = torch.matmul(X.T, dz1) / m
+        db1 = torch.sum(dz1, axis=0) / m
+
+        with torch.no_grad():
+            self.W1 -= lr * dW1
+            self.b1 -= lr * db1
+            self.W2 -= lr * dW2
+            self.b2 -= lr * db2
 
     def fit(self, X, y):
         X_t = (
