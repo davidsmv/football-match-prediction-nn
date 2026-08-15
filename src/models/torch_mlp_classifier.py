@@ -17,6 +17,7 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         self._build_model()
 
     def _build_model(self) -> None:
+        # Layer 1
         self.W1 = torch.randn(
             self.input_size,
             self.hidden_size,
@@ -28,6 +29,7 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
             requires_grad=True,
             device=self.device
         )
+        # Layer 2 (output layer)
         self.W2 = torch.randn(
             self.hidden_size,
             self.output_size,
@@ -53,15 +55,33 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
 
     def backward(self, X, y, output, lr=0.01):
         m = X.shape[0]
-        dz2 = output - y
-        dW2 = torch.matmul(self.a1.T, dz2)
-        db2 = torch.sum(dz2, axis=0) / m
 
-        da1 = torch.matmul(dz2, self.W2.T)
-        dz1 = da1 * (self.a1 * (1 - self.a1))
-        dW1 = torch.matmul(X.T, dz1) / m
-        db1 = torch.sum(dz1, axis=0) / m
+        # Apply softmax to logits to get probabilities
+        probs = torch.softmax(output, dim=1)
 
+        # For multiclass cross-entropy, dz2 = probs - one_hot(y)
+        # We'll compute this directly using y as class indices
+        one_hot_y = torch.zeros_like(probs)
+        one_hot_y.scatter_(1, y.unsqueeze(1), 1)
+
+        dz2 = probs - one_hot_y
+
+        # Gradients for W2 and b2
+        dW2 = self.a1.T @ dz2 / m
+        db2 = dz2.sum(axis=0) / m
+
+        # Backpropagate to hidden layer
+        da1 = dz2 @ self.W2.T
+
+        # ReLU derivative: 1 where z1 > 0, else 0
+        relu_deriv = (self.z1 > 0).float()
+        dz1 = da1 * relu_deriv
+
+        # Gradients for W1 and b1
+        dW1 = X.T @ dz1 / m
+        db1 = dz1.sum(axis=0) / m
+
+        # Update parameters
         with torch.no_grad():
             self.W1 -= lr * dW1
             self.b1 -= lr * db1
