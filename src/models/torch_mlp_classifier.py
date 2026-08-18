@@ -54,6 +54,7 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         return self.z2
 
     def backward(self, X, y, output, lr=0.01):
+        # Count of samples
         m = X.shape[0]
 
         # Apply softmax to logits to get probabilities
@@ -61,9 +62,13 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
 
         # For multiclass cross-entropy, dz2 = probs - one_hot(y)
         # We'll compute this directly using y as class indices
+        # One-hot encode y is for creating the correct shape for subtraction,
+        # For instance, if y = [0, 2], then one_hot_y = [[1, 0, 0], [0, 0, 1]]
         one_hot_y = torch.zeros_like(probs)
         one_hot_y.scatter_(1, y.unsqueeze(1), 1)
 
+        # Calculate the output layer error
+        # this is the gradient of the loss with respect to z2
         dz2 = probs - one_hot_y
 
         # Gradients for W2 and b2
