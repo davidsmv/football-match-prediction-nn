@@ -68,7 +68,6 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         one_hot_y.scatter_(1, y.unsqueeze(1), 1)
 
         # Calculate the output layer error
-        # this is the gradient of the loss with respect to z2
         dz2 = probs - one_hot_y
 
         # Gradients for W2 and b2
