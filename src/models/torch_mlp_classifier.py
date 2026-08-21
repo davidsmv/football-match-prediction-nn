@@ -9,6 +9,13 @@ from loguru import logger
 
 class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
     def __init__(self, input_size, hidden_size, output_size):
+        """
+        Initialize the TorchMLPClassifier.
+
+        input_size: Number of input features.
+        hidden_size: Number of hidden units (neurons) in the hidden layer.
+        output_size: Number of output classes (for classification).
+        """
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {self.device}")
         self.input_size = input_size
@@ -54,6 +61,31 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         return self.z2
 
     def backward(self, X, y, output, lr=0.01):
+        """
+        Backpropagation to compute gradients and update weights.
+        X: Input data (m x input_size)
+        y: True labels (m x 1)
+        output: Output from the forward pass (m x output_size)
+        lr: Learning rate
+
+        Conventions:
+        - m: number of samples
+        - input_size: number of input features
+        - hidden_size: number of neurons in the hidden layer
+        - output_size: number of classes (for classification)
+        - lr: learning rate for gradient descent
+        - one_hot_y: one-hot encoded true labels. e.g.
+        if y = [0, 2], then one_hot_y = [[1, 0, 0], [0, 0, 1]]
+        - d: denotes the derivative of the loss with respect to the
+        corresponding variable.
+        - gradient: All those derivatives (dW1, db1, dW2, db2) together
+        form the gradient.
+
+        Notes:
+        - Derivate: how the function changes with respect to one variable.
+        - Gradient: collection of all those partial derivatives for a function
+        with multiple variables.
+        """
         # Count of samples
         m = X.shape[0]
 
@@ -64,10 +96,15 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # We'll compute this directly using y as class indices
         # One-hot encode y is for creating the correct shape for subtraction,
         # For instance, if y = [0, 2], then one_hot_y = [[1, 0, 0], [0, 0, 1]]
+        # So first you need a matrix of zeros with shape (m, output_size) and
+        # then scatter 1s at the indices specified by y
         one_hot_y = torch.zeros_like(probs)
         one_hot_y.scatter_(1, y.unsqueeze(1), 1)
 
         # Calculate the output layer error
+        # Why? dz2 tell us: How does the loss change if I change each output
+        # neuron's pre-activation (z2)?"
+        # SHAPE: (m, output_size)
         dz2 = probs - one_hot_y
 
         # Gradients for W2 and b2
