@@ -105,13 +105,84 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # Why? dz2 tell us: How does the loss change if I change each output
         # neuron's pre-activation (z2)?"
         # SHAPE: (m, output_size)
+        # Calculate the gradient of the loss with respect to the output layer's
+        # pre-activation values (z2).
+        # Recall the forward pass:
+        #     z2    →    softmax    →    probs
+        #                         →    predicted probabilities
+        # For multiclass classification, we use:
+        #     - softmax to convert the logits (z2) into probabilities
+        #     - cross-entropy to measure how different those probabilities are
+        #       from the true labels
+        # The derivative of the softmax + cross-entropy combination simplifies to:
+        #
+        #     dz2 = ∂L/∂z2
+        #         = probs - one_hot_y
+        #
+        # In other words, we are comparing what the model predicted with what
+        # the correct answer should have been.
+        # Example:
+        #
+        #     probs      = [0.7, 0.2, 0.1]   # model prediction
+        #     one_hot_y  = [0.0, 1.0, 0.0]   # true class = 1
+        #
+        #     dz2        = [0.7, -0.8, 0.1]
+        #
+        # This tells us how the loss changes with respect to each output neuron's
+        # pre-activation:
+        #     +0.7 → the model gave too much probability to class 0
+        #     -0.8 → the model needs to increase the output for the correct class
+        #     +0.1 → the model gave some probability to an incorrect class
+        # Therefore, dz2 is the error signal/gradient that starts the backward
+        # propagation from the output layer. We will use it to calculate how the
+        # weights and biases in the output layer should be changed.
+        #
+        # SHAPE:
+        #     probs       → (m, output_size)
+        #     one_hot_y  → (m, output_size)
+        #     dz2         → (m, output_size)
         dz2 = probs - one_hot_y
 
-        # Gradients for W2 and b2
-        dW2 = self.a1.T @ dz2 / m
-        db2 = dz2.sum(axis=0) / m
+        # Gradient of the loss with respect to W2
+        # We want to calculate:
+        #     dW2 = ∂L/∂W2
+        # The output layer is:
+        #     z2 = a1 @ W2 + b2
+        # Using the chain rule:
+        #     ∂L/∂W2 = (∂L/∂z2) * (∂z2/∂W2)
+        # We already calculated:
+        #     dz2 = ∂L/∂z2
+        # Since:
+        #     z2 = a1 @ W2 + b2
+        # the derivative of z2 with respect to W2 depends on a1.
+        # For all samples at once, this becomes:
+        #     dW2 = a1.T @ dz2
+        # Since we have m training examples, we average their gradients:
+        #     dW2 = (a1.T @ dz2) / m
+        # Therefore:
+        #     dW2 = ∂L/∂W2
+        # Interpretation:
+        #     dW2 tells us how the loss changes when each weight in W2 changes.
+        #     The sign tells us the direction in which the weight should move,
+        #     and the magnitude tells us how strongly that weight affects the loss.
+        dW2 = (self.a1.T @ dz2) / m
+        db2 = dz2.sum(dim=0) / m
 
-        # Backpropagate to hidden layer
+        # Gradient of the loss with respect to the output biases (b2).
+        #
+        # Since each bias is added directly to its corresponding output neuron:
+        #     z2 = a1 @ W2 + b2
+        #
+        # The derivative of z2 with respect to b2 is 1, so by the chain rule:
+        #     db2 = ∂L/∂b2 = ∂L/∂z2 = dz2
+        #
+        # For a batch, we sum the gradients from all samples because the same
+        # bias is shared across every sample, then divide by m to get the
+        # average gradient:
+        #     db2 = (1/m) Σ dz2
+        #
+        # In PyTorch, dim=0 sums across the samples, leaving one gradient
+        # value for each output bias.
         da1 = dz2 @ self.W2.T
 
         # ReLU derivative: 1 where z1 > 0, else 0
