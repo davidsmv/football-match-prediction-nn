@@ -114,7 +114,8 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         #     - softmax to convert the logits (z2) into probabilities
         #     - cross-entropy to measure how different those probabilities are
         #       from the true labels
-        # The derivative of the softmax + cross-entropy combination simplifies to:
+        # The derivative of the softmax + cross-entropy combination simplifies
+        # to:
         #
         #     dz2 = ∂L/∂z2
         #         = probs - one_hot_y
@@ -128,14 +129,16 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         #
         #     dz2        = [0.7, -0.8, 0.1]
         #
-        # This tells us how the loss changes with respect to each output neuron's
+        # This tells us how the loss changes with respect to each output
+        # neuron's
         # pre-activation:
         #     +0.7 → the model gave too much probability to class 0
-        #     -0.8 → the model needs to increase the output for the correct class
+        #     -0.8 → the model needs to increase the output for the correct
+    #               class
         #     +0.1 → the model gave some probability to an incorrect class
         # Therefore, dz2 is the error signal/gradient that starts the backward
-        # propagation from the output layer. We will use it to calculate how the
-        # weights and biases in the output layer should be changed.
+        # propagation from the output layer. We will use it to calculate how
+        # the weights and biases in the output layer should be changed.
         #
         # SHAPE:
         #     probs       → (m, output_size)
@@ -164,7 +167,8 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # Interpretation:
         #     dW2 tells us how the loss changes when each weight in W2 changes.
         #     The sign tells us the direction in which the weight should move,
-        #     and the magnitude tells us how strongly that weight affects the loss.
+        #     and the magnitude tells us how strongly that weight affects the
+        # loss.
         dW2 = (self.a1.T @ dz2) / m
         db2 = dz2.sum(dim=0) / m
 
