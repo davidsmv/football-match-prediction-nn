@@ -183,24 +183,29 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # value for each output bias.
         db2 = dz2.sum(dim=0) / m
 
-        # Gradient of the loss with respect to the hidden layer's activations
-        # (a1).
-        # We want to calculate:
+        # Step: send the output error one layer backward, to the hidden
+        # activations a1.
+        #
+        # We already know dz2 = ∂L/∂z2: how the loss changes if we change
+        # each output neuron. Next we need:
         #     da1 = ∂L/∂a1
-        # The output layer is:
+        # that is: how the loss changes if we change each hidden neuron's
+        # activation. We need this because the hidden layer's weights (W1)
+        # only affect the loss *through* a1.
+        #
+        # Forward pass for the output layer:
         #     z2 = a1 @ W2 + b2
-        # Using the chain rule:
+        # So each hidden neuron connects to every output neuron via W2.
+        # Chain rule:
         #     ∂L/∂a1 = (∂L/∂z2) * (∂z2/∂a1)
-        # We already calculated:
-        #     dz2 = ∂L/∂z2    SHAPE: (m, output_size)
-        # Since:
-        #     z2 = a1 @ W2 + b2
-        # the derivative of z2 with respect to a1 depends on W2.
-        # For all samples at once, this becomes:
+        # Because z2 depends on a1 through W2, ∂z2/∂a1 is W2. Going
+        # backward means multiplying by W2.T (the same connections, reversed):
         #     da1 = dz2 @ W2.T
-        # In other words, we are "routing" the output error (dz2) backwards
-        # through W2 to find out how much each hidden neuron contributed to
-        # that error.
+        #
+        # Intuition: a hidden neuron that is strongly connected (large W2)
+        # to an output neuron with a large error (dz2) gets a large da1.
+        # That is how the output mistake is shared across the hidden layer.
+        #
         # SHAPE:
         #     dz2     → (m, output_size)
         #     W2.T    → (output_size, hidden_size)
