@@ -2,9 +2,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from loguru import logger
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
 
 
 class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
@@ -170,23 +170,41 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         #     and the magnitude tells us how strongly that weight affects the
         # loss.
         dW2 = (self.a1.T @ dz2) / m
-        db2 = dz2.sum(dim=0) / m
-
         # Gradient of the loss with respect to the output biases (b2).
-        #
         # Since each bias is added directly to its corresponding output neuron:
         #     z2 = a1 @ W2 + b2
-        #
         # The derivative of z2 with respect to b2 is 1, so by the chain rule:
         #     db2 = ∂L/∂b2 = ∂L/∂z2 = dz2
-        #
         # For a batch, we sum the gradients from all samples because the same
         # bias is shared across every sample, then divide by m to get the
         # average gradient:
         #     db2 = (1/m) Σ dz2
-        #
         # In PyTorch, dim=0 sums across the samples, leaving one gradient
         # value for each output bias.
+        db2 = dz2.sum(dim=0) / m
+
+        # Gradient of the loss with respect to the hidden layer's activations
+        # (a1).
+        # We want to calculate:
+        #     da1 = ∂L/∂a1
+        # The output layer is:
+        #     z2 = a1 @ W2 + b2
+        # Using the chain rule:
+        #     ∂L/∂a1 = (∂L/∂z2) * (∂z2/∂a1)
+        # We already calculated:
+        #     dz2 = ∂L/∂z2    SHAPE: (m, output_size)
+        # Since:
+        #     z2 = a1 @ W2 + b2
+        # the derivative of z2 with respect to a1 depends on W2.
+        # For all samples at once, this becomes:
+        #     da1 = dz2 @ W2.T
+        # In other words, we are "routing" the output error (dz2) backwards
+        # through W2 to find out how much each hidden neuron contributed to
+        # that error.
+        # SHAPE:
+        #     dz2     → (m, output_size)
+        #     W2.T    → (output_size, hidden_size)
+        #     da1     → (m, hidden_size)
         da1 = dz2 @ self.W2.T
 
         # ReLU derivative: 1 where z1 > 0, else 0
