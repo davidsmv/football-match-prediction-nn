@@ -86,130 +86,132 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         - Gradient: collection of all those partial derivatives for a function
         with multiple variables.
         """
-        # Count of samples
+        # ------------------------------------------------------------------
+        # Backprop story (we walk the network backwards).
+        #
+        # Forward was:
+        #     X → z1 → a1 (ReLU) → z2 → softmax → probs → loss
+        #
+        # Backward starts at the loss and asks, layer by layer:
+        # "if I change this value, how does the loss change?"
+        # Those answers (the gradients) tell us how to update W and b.
+        #
+        # One running example for every step below (m = 1):
+        #     2 hidden neurons, 3 classes, true class = 1
+        #     z2  = [2.0, 1.0, 0.0]
+        #     a1  = [1.0, 0.5]
+        #     W2  = [[0.5, 1.0, 0.0],     # hidden 0 → classes 0, 1, 2
+        #            [0.2, 0.3, 0.4]]     # hidden 1 → classes 0, 1, 2
+        #     y   = 1
+        # ------------------------------------------------------------------
+
+        # How many samples are in this batch. We will average gradients
+        # over m so one example cannot dominate the update.
+        # In the running example: 1 row in X → m = 1, so / m does nothing.
         m = X.shape[0]
 
-        # Apply softmax to logits to get probabilities
+        # Step 1 — turn logits into probabilities.
+        # The forward pass ended at z2 (raw scores). Softmax turns those
+        # scores into probs that sum to 1, so we can compare them to labels.
+        #     z2    = [2.0, 1.0, 0.0]     # class 0 scored highest
+        #     probs ≈ [0.7, 0.2, 0.1]     # rounded; they now sum to 1
+        # Class 0 still looks most likely, but now we have a distribution.
         probs = torch.softmax(output, dim=1)
 
-        # For multiclass cross-entropy, dz2 = probs - one_hot(y)
-        # We'll compute this directly using y as class indices
-        # One-hot encode y is for creating the correct shape for subtraction,
-        # For instance, if y = [0, 2], then one_hot_y = [[1, 0, 0], [0, 0, 1]]
-        # So first you need a matrix of zeros with shape (m, output_size) and
-        # then scatter 1s at the indices specified by y
+        # Step 2 — put the true labels in the same shape as probs.
+        # y is a class index. Subtraction needs a vector of 0s and 1s
+        # with a 1 only on the correct class.
+        #     y         = 1
+        #     one_hot_y = [0.0, 1.0, 0.0]
         one_hot_y = torch.zeros_like(probs)
         one_hot_y.scatter_(1, y.unsqueeze(1), 1)
 
-        # Calculate the output layer error
-        # Why? dz2 tell us: How does the loss change if I change each output
-        # neuron's pre-activation (z2)?"
-        # SHAPE: (m, output_size)
-        # Calculate the gradient of the loss with respect to the output layer's
-        # pre-activation values (z2).
-        # Recall the forward pass:
-        #     z2    →    softmax    →    probs
-        #                         →    predicted probabilities
-        # For multiclass classification, we use:
-        #     - softmax to convert the logits (z2) into probabilities
-        #     - cross-entropy to measure how different those probabilities are
-        #       from the true labels
-        # The derivative of the softmax + cross-entropy combination simplifies
-        # to:
+        # Step 3 — start of backprop: the output error dz2 = ∂L/∂z2.
+        # For softmax + cross-entropy this simplifies to:
+        #     dz2 = probs - one_hot_y
+        # We are comparing "what the model predicted" with "what was true".
         #
-        #     dz2 = ∂L/∂z2
-        #         = probs - one_hot_y
-        #
-        # In other words, we are comparing what the model predicted with what
-        # the correct answer should have been.
-        # Example:
-        #
-        #     probs      = [0.7, 0.2, 0.1]   # model prediction
-        #     one_hot_y  = [0.0, 1.0, 0.0]   # true class = 1
-        #
+        #     probs      = [0.7, 0.2, 0.1]
+        #     one_hot_y  = [0.0, 1.0, 0.0]
         #     dz2        = [0.7, -0.8, 0.1]
+        #       +0.7 → too much probability on class 0 (push this down)
+        #       -0.8 → too little on the correct class (push this up)
+        #       +0.1 → some probability on class 2 (push this down)
         #
-        # This tells us how the loss changes with respect to each output
-        # neuron's
-        # pre-activation:
-        #     +0.7 → the model gave too much probability to class 0
-        #     -0.8 → the model needs to increase the output for the correct
-    #               class
-        #     +0.1 → the model gave some probability to an incorrect class
-        # Therefore, dz2 is the error signal/gradient that starts the backward
-        # propagation from the output layer. We will use it to calculate how
-        # the weights and biases in the output layer should be changed.
+        # Everything below is just "who should take blame for this error?"
+        # First we blame the output layer (W2, b2). Then we send the same
+        # error one layer back so we can blame the hidden layer (W1, b1).
         #
-        # SHAPE:
-        #     probs       → (m, output_size)
-        #     one_hot_y  → (m, output_size)
-        #     dz2         → (m, output_size)
+        # SHAPE: probs, one_hot_y, dz2 → (m, output_size)
         dz2 = probs - one_hot_y
 
-        # Gradient of the loss with respect to W2
-        # We want to calculate:
-        #     dW2 = ∂L/∂W2
-        # The output layer is:
-        #     z2 = a1 @ W2 + b2
-        # Using the chain rule:
-        #     ∂L/∂W2 = (∂L/∂z2) * (∂z2/∂W2)
-        # We already calculated:
-        #     dz2 = ∂L/∂z2
-        # Since:
-        #     z2 = a1 @ W2 + b2
-        # the derivative of z2 with respect to W2 depends on a1.
-        # For all samples at once, this becomes:
-        #     dW2 = a1.T @ dz2
-        # Since we have m training examples, we average their gradients:
+        # Step 4 — how should W2 change?  dW2 = ∂L/∂W2
+        # Output layer:  z2 = a1 @ W2 + b2
+        # Chain rule:    ∂L/∂W2 = (∂L/∂z2) * (∂z2/∂W2)
+        # We already have ∂L/∂z2 = dz2.  z2 depends on W2 through a1,
+        # so for a whole batch:
         #     dW2 = (a1.T @ dz2) / m
-        # Therefore:
-        #     dW2 = ∂L/∂W2
-        # Interpretation:
-        #     dW2 tells us how the loss changes when each weight in W2 changes.
-        #     The sign tells us the direction in which the weight should move,
-        #     and the magnitude tells us how strongly that weight affects the
-        # loss.
+        # (divide by m = average over the batch; here m = 1)
+        #
+        #     a1  = [1.0, 0.5]
+        #     dz2 = [0.7, -0.8, 0.1]
+        # Each weight update is (hidden activation) * (output error):
+        #     dW2 = [[1.0*0.7,  1.0*(-0.8),  1.0*0.1],
+        #            [0.5*0.7,  0.5*(-0.8),  0.5*0.1]]
+        #         = [[0.70, -0.80, 0.10],
+        #            [0.35, -0.40, 0.05]]
+        # Hidden neuron 0 fired more (1.0 vs 0.5), so its row is larger:
+        # it takes more blame. Column 1 is negative → those weights
+        # should increase (we needed more probability on the true class).
+        #
+        # Sign = which way to move the weight. Magnitude = how strongly
+        # that weight affected the loss.
         dW2 = (self.a1.T @ dz2) / m
-        # Gradient of the loss with respect to the output biases (b2).
-        # Since each bias is added directly to its corresponding output neuron:
-        #     z2 = a1 @ W2 + b2
-        # The derivative of z2 with respect to b2 is 1, so by the chain rule:
-        #     db2 = ∂L/∂b2 = ∂L/∂z2 = dz2
-        # For a batch, we sum the gradients from all samples because the same
-        # bias is shared across every sample, then divide by m to get the
-        # average gradient:
+
+        # Step 5 — how should b2 change?  db2 = ∂L/∂b2
+        # Bias is added directly: z2 = a1 @ W2 + b2, so ∂z2/∂b2 = 1.
+        # Chain rule then says db2 is just dz2. The same bias is shared
+        # by every sample, so we sum across the batch and average:
         #     db2 = (1/m) Σ dz2
-        # In PyTorch, dim=0 sums across the samples, leaving one gradient
-        # value for each output bias.
+        # dim=0 sums over samples, leaving one value per output neuron.
+        # Here m = 1, so there is nothing to average:
+        #     dz2 = [0.7, -0.8, 0.1]
+        #     db2 = [0.7, -0.8, 0.1]
         db2 = dz2.sum(dim=0) / m
 
-        # Step: send the output error one layer backward, to the hidden
-        # activations a1.
+        # Step 6 — send the output error back to the hidden activations.
+        # We now have dW2 and db2, so we know how to update the output
+        # layer. W1 cannot be updated yet: it never touches z2 directly.
+        # It only affects the loss through a1:
+        #     a1 → W2 → z2 → loss
+        # So we need da1 = ∂L/∂a1 first: "how much did each hidden
+        # neuron contribute to the output error?"
         #
-        # We already know dz2 = ∂L/∂z2: how the loss changes if we change
-        # each output neuron. Next we need:
-        #     da1 = ∂L/∂a1
-        # that is: how the loss changes if we change each hidden neuron's
-        # activation. We need this because the hidden layer's weights (W1)
-        # only affect the loss *through* a1.
-        #
-        # Forward pass for the output layer:
+        # Same equation as before, other direction:
         #     z2 = a1 @ W2 + b2
-        # So each hidden neuron connects to every output neuron via W2.
-        # Chain rule:
-        #     ∂L/∂a1 = (∂L/∂z2) * (∂z2/∂a1)
-        # Because z2 depends on a1 through W2, ∂z2/∂a1 is W2. Going
-        # backward means multiplying by W2.T (the same connections, reversed):
+        # Chain rule:  ∂L/∂a1 = (∂L/∂z2) * (∂z2/∂a1)
+        # Going backward through W2 uses the transpose (same wires,
+        # reversed):
         #     da1 = dz2 @ W2.T
         #
-        # Intuition: a hidden neuron that is strongly connected (large W2)
-        # to an output neuron with a large error (dz2) gets a large da1.
-        # That is how the output mistake is shared across the hidden layer.
+        #     dz2 = [0.7, -0.8, 0.1]
+        #     W2  = [[0.5, 1.0, 0.0],
+        #            [0.2, 0.3, 0.4]]
+        # Hidden 0's da1 is dz2 dotted with its outgoing weights:
+        #     0.7*0.5 + (-0.8)*1.0 + 0.1*0.0 = -0.45
+        # Hidden 1:
+        #     0.7*0.2 + (-0.8)*0.3 + 0.1*0.4 = -0.06
+        #     da1 = [-0.45, -0.06]
+        # Hidden 0 was wired more strongly into the class-1 error
+        # (weight 1.0 vs 0.3), so it receives more of the blame.
+        #
+        # Next we will push da1 through ReLU to get dz1, then the same
+        # pattern as steps 4–5 will give dW1 and db1.
         #
         # SHAPE:
-        #     dz2     → (m, output_size)
-        #     W2.T    → (output_size, hidden_size)
-        #     da1     → (m, hidden_size)
+        #     dz2  → (m, output_size)
+        #     W2.T → (output_size, hidden_size)
+        #     da1  → (m, hidden_size)
         da1 = dz2 @ self.W2.T
 
         # ReLU derivative: 1 where z1 > 0, else 0
