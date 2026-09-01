@@ -1,0 +1,708 @@
+---
+title: '**NN Prediction Model**'
+jupyter: python3
+
+---
+
+
+
+***
+## **1. Big Picture and Objectives**
+
+### **Objective**
+By June 2026 (end of the Premier League season), develop and evaluate a feedforward (Sequential) neural network that predicts Premier League match outcomes (home win, draw, away win) using historical FBref data scraped from FBref, achieving a **Macro F1-score of at least 0.70** on a held-out test season, while applying the concepts learned in the 'Neural Networks and Deep Learning' course by deeplearning.ai (forward/backward propagation, gradient descent, regularization, and hyperparameter tuning).
+
+> **Why Macro F1 over Accuracy?** The dataset is imbalanced (Home Win ~45%, Away Win ~30%, Draw ~25%). A naive model predicting "Home Win" always achieves ~45% accuracy without learning anything. Macro F1 weights all three classes equally, ensuring the model genuinely learns to predict draws and away wins — not just the dominant class.
+
+### **Similar Projects**
+The next are good examples of similar projects that have applied neural networks and machine learning techniques to predict football match outcomes:
+
+
+
+- **[lorenzopalaia/Football-Prediction](https://github.com/lorenzopalaia/Football-Prediction)** (Palaia, 2024): Keras NN on historical data; full notebooks for prep/training/eval.
+- **[giovannicampa/football_match_results_prediction](https://github.com/giovannicampa/football_match_results_prediction)** (Campa, 2019): MLP/TensorFlow predict goals/outcomes; 55–59% accuracy.
+- **[AndrewCarterUK/football-predictor](https://github.com/AndrewCarterUK/football-predictor)** (Carter, 2018): Deep NN for Premier League using team stats.
+- **[yuliang419/football-predictor](https://github.com/yuliang419/football-predictor)** (Yuliang, 2022): Simple NN for EPL from recent performance.
+
+### **Potential Pipeline**
+Get data (FBref historical match data) → Preprocess (clean, feature engineering) → Train/Test split → Build NN model (Keras Sequential) → Train (forward/backward prop, gradient descent) → Evaluate (Macro F1-score on test set) → Hyperparameter tuning → Final evaluation.
+
+```{python}
+%load_ext autoreload
+%autoreload 2
+```
+
+***
+## **2. Get the Data**
+
+```{python}
+import sys
+from pathlib import Path
+
+project_root = Path.cwd().resolve()
+while (
+    project_root.name != "football-match-prediction-nn"
+    and project_root != project_root.parent
+):
+    project_root = project_root.parent
+
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+```
+
+```{python}
+# read all csv files and add season from file names like fixtures_2015-2016.csv
+
+import re
+from pathlib import Path
+
+import pandas as pd
+
+cwd = Path.cwd()
+path = cwd / "src" / "data"
+
+if not path.exists():
+    path = cwd.parent / "data"
+
+if not path.exists():
+    raise FileNotFoundError(f"Could not find data directory from {cwd}")
+
+frames = []
+for file in sorted(path.glob("*.csv")):
+    season_match = re.search(r"fixtures_(\d{4}-\d{4})$", file.stem)
+    season = season_match.group(1) if season_match else None
+
+    temp_df = pd.read_csv(file)
+    temp_df["season"] = season
+    frames.append(temp_df)
+
+df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+cols_to_check = df.columns.difference(["season"])
+
+df = df.dropna(how="all", subset=cols_to_check)
+
+df
+```
+
+***
+## **3. Exploratory Analysis and Insights**
+
+```{python}
+df.info()
+```
+
+```{python}
+df.describe().transpose()
+```
+
+```{python}
+import matplotlib.pyplot as plt
+
+# Null values count
+null_counts = df.isnull().sum().sort_values(ascending=True).where(lambda x: x > 0).dropna()
+
+fig, ax = plt.subplots(figsize=(10, 5))
+bars = null_counts.plot(kind="barh", ax=ax)
+ax.set_title("Null Values Count \n", fontsize=14, pad=10, loc="left")
+# Remove unnecessary clutter
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+# Optional: remove left spine for cleaner look
+# ax.spines["left"].set_visible(False)
+
+for bar in ax.patches:
+    value = int(bar.get_width())
+    if value > 0:
+        ax.text(
+            value,                                # x position: end of the bar
+            bar.get_y() + bar.get_height() / 2,   # y position: middle of the bar
+            f" {value:,}",                        # text
+            ha="left",                            # horizontal alignment
+            va="center",                          # vertical alignment
+            fontsize=9,
+        )
+
+# ax.set_ylabel("Count")
+ax.set_xlabel("Number of Missing Values", loc="left")
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+# Count of rows with all null values
+int(df.isnull().all(axis=1).sum())
+```
+
+```{python}
+import matplotlib.pyplot as plt
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 15))
+
+# Remove unnecessary clutter
+ax1.spines["top"].set_visible(False)
+ax1.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines["right"].set_visible(False)
+
+
+df["home"].groupby(
+    df["home"]
+).count(
+).sort_values(
+    ascending=True
+).plot(
+    kind="barh", ax=ax1
+)
+ax1.set_title("Home matches per team", fontsize=14, pad=10, loc="left")
+ax1.set_ylabel("")
+
+df["away"].groupby(
+    df["away"]
+).count(
+).sort_values(
+    ascending=True
+).plot(
+    kind="barh", ax=ax2
+)
+ax2.set_title("Away matches per team", fontsize=14, pad=10, loc="left")
+ax2.set_ylabel("")
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+
+
+# Remove unnecessary clutter
+ax1.spines["top"].set_visible(False)
+ax1.spines["right"].set_visible(False)
+ax2.spines["top"].set_visible(False)
+ax2.spines["right"].set_visible(False)
+
+
+ax = df["venue"].groupby(
+    df["venue"]).count().sort_values(
+    ascending=True
+).plot(
+    kind="barh", figsize=(14, 10)
+)
+
+ax.set_title("Matches per venue", fontsize=14, pad=10, loc="left")
+ax.set_ylabel("")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+```
+
+```{python}
+ax = df["referee"].groupby(
+    df["referee"]).count().sort_values(
+    ascending=True
+).plot(
+    kind="barh", figsize=(14, 10)
+)
+ax.set_title("Matches per referee", fontsize=14, pad=10, loc="left")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.set_xlabel("Number of matches", loc="left")
+ax.set_ylabel("");
+```
+
+```{python}
+ax = df["day"].groupby(
+    df["day"]).count().sort_values(
+    ascending=True
+).plot(
+    kind="barh", figsize=(12, 5)
+);
+ax.set_title("Matches per day", fontsize=14, pad=10, loc="left")
+ax.set_ylabel("")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+# ax.set_xlabel("Day")
+# ax.set_ylabel("Number of matches")
+```
+
+```{python}
+local_hour = pd.to_numeric(
+    df["time"].str[:2], errors="coerce"
+).dropna().astype(int)
+
+ax = local_hour.groupby(local_hour).count().sort_values(
+    ascending=True
+).plot(
+    kind="barh", figsize=(12, 5)
+)
+
+ax.set_title("Matches per local hour", fontsize=14, pad=10, loc="left")
+ax.set_ylabel("Hour of day", loc="top")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+```
+
+```{python}
+ax = local_hour.plot(kind="hist", bins=5, figsize=(12, 5))
+ax.set_title("Local hour distribution", fontsize=14, pad=15, loc="left")
+ax.set_ylabel("Frequency", loc="top")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+```
+
+```{python}
+ax = df["attendance"].plot(kind="hist", bins=10, figsize=(12, 5))
+ax.set_title("Attendance distribution", fontsize=14, pad=15, loc="left")
+ax.set_ylabel("Frequency", loc="top")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+```
+
+```{python}
+df_eda = df.copy()
+```
+
+```{python}
+df_eda
+```
+
+```{python}
+df_eda["weekday"] = pd.to_datetime(
+    df_eda["date"], errors="coerce"
+).dt.weekday + 1
+df_eda["month"] = pd.to_datetime(
+    df_eda["date"], errors="coerce"
+).dt.month
+df_eda["hour"] = pd.to_numeric(
+    df_eda["time"].str[:2], errors="coerce"
+).dropna().astype(int)
+```
+
+```{python}
+def label_home_outcome(score):
+    if pd.isna(score):
+        return None
+    try:
+        home_score, away_score = map(int, score.split("–"))
+        if home_score > away_score:
+            return 1
+        elif home_score < away_score:
+            return -1
+        else:
+            return 0
+    except Exception as e:
+        print(f"Error encoding score '{score}': {e}")
+        return None
+    
+df_eda["home_outcome"] = df_eda["score"].apply(label_home_outcome)
+```
+
+```{python}
+import numpy as np
+import seaborn as sns
+
+corr_matrix = df_eda.corr(numeric_only=True)
+
+# Sort by absolute correlation with home_outcome
+target = "home_outcome"
+corr_with_target = corr_matrix[target].drop(
+    target
+).sort_values(key=abs, ascending=True)
+
+fig, axes = plt.subplots(2, 1, figsize=(15, 20))
+
+# Bar chart: correlation of each feature with home_outcome
+colors = ["#d73027" if v < 0 else "#4575b4" for v in corr_with_target]
+corr_with_target.plot(kind="barh", ax=axes[0], color=colors)
+
+# Keep x-axis centered at zero with symmetric limits
+max_abs = corr_with_target.abs().max()
+x_pad = max_abs * 0.15 if max_abs > 0 else 0.1
+axes[0].set_xlim(-(max_abs + x_pad), max_abs + x_pad)
+
+# Add value labels at the end of each bar
+offset = (max_abs + x_pad) * 0.02
+for patch, value in zip(axes[0].patches, corr_with_target.values):
+    y = patch.get_y() + patch.get_height() / 2
+    if value >= 0:
+        axes[0].text(
+            value + offset,
+            y,
+            f"{value:.3f}",
+            va="center",
+            ha="left",
+            fontsize=9
+        )
+    else:
+        axes[0].text(
+            value - offset,
+            y,
+            f"{value:.3f}",
+            va="center",
+            ha="right",
+            fontsize=9
+        )
+
+axes[0].set_title(
+    f"Feature Correlation with {target}", fontsize=13, pad=10, loc="left")
+axes[0].set_xlabel("Pearson r", loc="left")
+axes[0].axvline(0, color="black", linewidth=0.8)
+axes[0].spines["top"].set_visible(False)
+axes[0].spines["right"].set_visible(False)
+
+# Heatmap: lower triangle only (includes diagonal)
+# mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap="Blues", center=0,
+            linewidths=0.0, ax=axes[1], vmin=-1, vmax=1)
+axes[1].set_title("Full Correlation Heatmap", fontsize=13, pad=10, loc="left")
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+df_eda.head(10)
+```
+
+```{python}
+df_eda.sort_values("date", inplace=True)
+```
+
+```{python}
+def add_venue_form_last_n(
+    df: pd.DataFrame,
+    n: int = 5,
+    outcome_col: str = "home_outcome",
+    season_col: str = "season",
+    home_col: str = "home",
+    away_col: str = "away",
+) -> pd.DataFrame:
+    """Add venue-specific rolling form columns to *df* and return it.
+
+    Columns added:
+      - home_team_home_matches_form_balance_last_n
+      - away_team_away_matches_form_balance_last_n
+    """
+    out = df.copy()
+    out[f"home_team_home_matches_form_balance_last_{n}"] = (
+        out.groupby([season_col, home_col])[outcome_col]
+        .transform(lambda s: s.shift(1).rolling(n, min_periods=1).sum())
+        .fillna(0)
+    )
+    out[f"away_team_away_matches_form_balance_last_{n}"] = (
+        out.groupby([season_col, away_col])[outcome_col]
+        .transform(lambda s: s.shift(1).rolling(n, min_periods=1).sum())
+        .fillna(0)
+        .mul(-1)
+    )
+    return out
+
+df_eda = add_venue_form_last_n(df_eda, n=1)
+df_eda = add_venue_form_last_n(df_eda, n=3)
+df_eda = add_venue_form_last_n(df_eda, n=5)
+df_eda = add_venue_form_last_n(df_eda, n=10)
+```
+
+```{python}
+df_eda[df_eda["away"] == "Manchester Utd"].head(10)
+```
+
+```{python}
+import seaborn as sns
+
+corr_matrix = df_eda.corr(numeric_only=True)
+
+# Sort by absolute correlation with home_outcome
+target = "home_outcome"
+corr_with_target = corr_matrix[target].drop(
+    target
+).sort_values(key=abs, ascending=True)
+
+fig, axes = plt.subplots(2, 1, figsize=(15, 20))
+
+axes[0].spines["top"].set_visible(False)
+axes[0].spines["right"].set_visible(False)
+
+
+# Bar chart: correlation of each feature with home_outcome
+colors = ["#d73027" if v < 0 else "#4575b4" for v in corr_with_target]
+corr_with_target.plot(kind="barh", ax=axes[0], color=colors)
+axes[0].set_title(
+    f"Feature Correlation with {target}", fontsize=13, pad=10, loc="left"
+)
+axes[0].set_xlabel("Pearson r", loc="left")
+axes[0].axvline(0, color="black", linewidth=0.8)
+
+# Add value labels at the end of each bar
+max_abs = corr_with_target.abs().max()
+x_pad = max_abs * 0.15 if max_abs > 0 else 0.1
+offset = (max_abs + x_pad) * 0.02
+for patch, value in zip(axes[0].patches, corr_with_target.values):
+    y = patch.get_y() + patch.get_height() / 2
+    if value >= 0:
+        axes[0].text(
+            value + offset,
+            y,
+            f"{value:.3f}",
+            va="center",
+            ha="left",
+            fontsize=9
+        )
+    else:
+        axes[0].text(
+            value - offset,
+            y,
+            f"{value:.3f}",
+            va="center",
+            ha="right",
+            fontsize=9
+        )
+
+# Heatmap: lower triangle only (includes diagonal)
+# mask = np.triu(np.ones_like(corr_matrix, dtype=bool), k=1)
+sns.heatmap(corr_matrix, annot=True, fmt=".1f", cmap="Blues", center=0,
+            linewidths=0.0, ax=axes[1], vmin=-1, vmax=1)
+axes[1].set_title("Full Correlation Heatmap", fontsize=13, pad=10, loc="left")
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+import pandas as pd
+
+
+def add_team_form_last_n(
+    df: pd.DataFrame,
+    n: int = 5,
+    outcome_col: str = "home_outcome",
+    season_col: str = "season",
+    date_col: str = "date",
+    time_col: str = "time",
+    home_col: str = "home",
+    away_col: str = "away",
+) -> pd.DataFrame:
+    out = df.copy()
+
+    # Stable match id for merging features back
+    out["_match_id"] = out.index
+
+    # Build sortable kickoff datetime (date + time)
+    date_part = pd.to_datetime(out[date_col], errors="coerce")
+    time_part = pd.to_timedelta(
+        out[time_col].fillna("00:00") + ":00",
+        errors="coerce",
+    )
+    out["_kickoff_dt"] = date_part + time_part.fillna(pd.Timedelta(0))
+
+    # Team-centric history table:
+    # - home team keeps home_outcome
+    # - away team gets inverse outcome
+
+    home_hist_cols = [
+        "_match_id", season_col, "_kickoff_dt", home_col, outcome_col
+    ]
+    away_hist_cols = [
+        "_match_id", season_col, "_kickoff_dt", away_col, outcome_col
+    ]
+
+    home_hist = out[home_hist_cols].rename(
+        columns={home_col: "team", outcome_col: "team_result"}
+    )
+    away_hist = out[away_hist_cols].rename(
+        columns={away_col: "team", outcome_col: "team_result"}
+    )
+    away_hist["team_result"] = -away_hist["team_result"]
+
+    team_hist = pd.concat([home_hist, away_hist], ignore_index=True)
+    team_hist = team_hist.sort_values(
+        [season_col, "team", "_kickoff_dt", "_match_id"]
+    )
+
+    # Overall team form: all venues (home and away matches),
+    # excluding current match
+    team_hist[f"overall_form_balance_last_{n}"] = (
+        team_hist.groupby([season_col, "team"])["team_result"]
+        .transform(lambda s: s.shift(1).rolling(n, min_periods=1).sum())
+        .fillna(0)
+    )
+
+    # Merge back: one overall value for home team and one for away team
+    base_cols = ["_match_id", "team", f"overall_form_balance_last_{n}"]
+
+    home_form = team_hist[base_cols].rename(
+        columns={
+            "team": home_col,
+            f"overall_form_balance_last_{n}": f"home_team_overall_form_balance_last_{n}",
+        }
+    )
+    away_form = team_hist[base_cols].rename(
+        columns={
+            "team": away_col,
+            f"overall_form_balance_last_{n}": f"away_team_overall_form_balance_last_{n}",
+        }
+    )
+
+    out = out.merge(home_form, on=["_match_id", home_col], how="left")
+    out = out.merge(away_form, on=["_match_id", away_col], how="left")
+
+    return out.drop(columns=["_match_id", "_kickoff_dt"])
+
+
+# Apply
+df_eda = add_team_form_last_n(df_eda, n=1)
+df_eda = add_team_form_last_n(df_eda, n=3)
+df_eda = add_team_form_last_n(df_eda, n=5)
+df_eda = add_team_form_last_n(df_eda, n=10)
+```
+
+```{python}
+import numpy as np
+import seaborn as sns
+
+corr_matrix = df_eda.corr(numeric_only=True)
+
+# Sort by absolute correlation with home_outcome
+target = "home_outcome"
+corr_with_target = corr_matrix[target].drop(
+    target
+).sort_values(key=abs, ascending=True)
+
+fig, axes = plt.subplots(2, 1, figsize=(15, 20))
+
+axes[0].spines["top"].set_visible(False)
+axes[0].spines["right"].set_visible(False)
+
+# Bar chart: correlation of each feature with home_outcome
+colors = ["#d73027" if v < 0 else "#4575b4" for v in corr_with_target]
+corr_with_target.plot(kind="barh", ax=axes[0], color=colors)
+axes[0].set_title(
+    f"Feature Correlation with {target}", fontsize=13, pad=10, loc="left"
+)
+axes[0].set_xlabel("Pearson r", loc="left")
+axes[0].axvline(0, color="black", linewidth=0.8)
+
+# Add value labels at the end of each bar
+max_abs = corr_with_target.abs().max()
+x_pad = max_abs * 0.15 if max_abs > 0 else 0
+offset = (max_abs + x_pad) * 0.02
+for patch, value in zip(axes[0].patches, corr_with_target.values):
+    y = patch.get_y() + patch.get_height() / 2
+    if value >= 0:
+        axes[0].text(
+            value + offset,
+            y,
+            f"{value:.3f}",
+            va="center",
+            ha="left",
+            fontsize=9
+        )
+    else:
+        axes[0].text(
+            value - offset,
+            y,
+            f"{value:.3f}",
+            va="center",
+            ha="right",
+            fontsize=9
+        )
+
+# Heatmap: lower triangle only (includes diagonal)
+# mask = np.triu(np.ones_like(corr_matrix, dtype=bool), k=1)
+sns.heatmap(corr_matrix, annot=True, fmt=".1f", cmap="Blues", center=0,
+            linewidths=0.0, ax=axes[1], vmin=-1, vmax=1)
+axes[1].set_title("Full Correlation Heatmap", fontsize=13, pad=10, loc="left")
+
+plt.tight_layout()
+plt.show()
+```
+
+## **4. Data Preparation Pipeline**
+
+```{python}
+def label_home_outcome(score):
+    if pd.isna(score):
+        return None
+    try:
+        home_score, away_score = map(int, score.split("–"))
+        if home_score > away_score:
+            return 1
+        elif home_score < away_score:
+            return -1
+        else:
+            return 0
+    except Exception as e:
+        print(f"Error encoding score '{score}': {e}")
+        return None
+    
+# df["home_outcome"] = df_eda["score"].apply(label_home_outcome)
+```
+
+```{python}
+# Define X and y for modeling
+
+df_cleaned = df[df["score"].notna()]
+
+# X = df_cleaned.drop(columns=["score"])
+X = df_cleaned
+y = df_cleaned["score"].apply(label_home_outcome)
+```
+
+```{python}
+df_dates = pd.to_datetime(X["date"], errors="coerce")
+
+chronological_idx = df_dates.sort_values().index
+
+train_frac = 0.97
+split_point = int(len(chronological_idx) * train_frac)
+
+train_idx = chronological_idx[:split_point]
+test_idx = chronological_idx[split_point:]
+
+X_train, X_test = X.loc[train_idx], X.loc[test_idx]
+y_train, y_test = y.loc[train_idx], y.loc[test_idx]
+
+print(
+    f"Train: {len(X_train)} matches "
+    f"({df_dates.loc[train_idx].min().date()} -> "
+    f"{df_dates.loc[train_idx].max().date()})"
+)
+print(
+    f"Test:  {len(X_test)} matches "
+    f"({df_dates.loc[test_idx].min().date()} -> "
+    f"{df_dates.loc[test_idx].max().date()})"
+)
+```
+
+```{python}
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler, RobustScaler
+
+from src.models.feature_transformer import FeatureTransformer
+
+pipeline = Pipeline([
+    ('feature_engineering', FeatureTransformer()),
+    ("robust", RobustScaler()),
+    ("minmax", MinMaxScaler(clip=True))
+    # Add other steps like scaling, model, etc. as needed
+]).set_output(transform="pandas")
+
+# Fit only on the training split so form/rolling stats and scalers don't leak
+
+# information from the held-out (most recent) 
+# matches.X_test_transformed = pipeline.transform(X_test)
+X_train_transformed = pipeline.fit_transform(X_train)
+```
+
+```{python}
+X_train_transformed
+```
+
+## **5. Model Selection & Training**
+
+```{python}
+import torch
+
+print("CUDA available:", torch.cuda.is_available())
+print("Torch CUDA build:", torch.version.cuda)
+```
+

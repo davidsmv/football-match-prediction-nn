@@ -5,6 +5,8 @@ torch==2.13.0; sys_platform == "darwin"
 undetected-chromedriver
 selenium
 ipykernel
+nbformat
+nbclient
 pandas==3.0.1
 matplotlib
 lxml
