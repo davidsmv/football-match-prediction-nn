@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="David Martínez">
 
 <title>NN Prediction Model</title>
 <style>
@@ -90,13 +91,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><strong>NN Prediction Model</strong></h1>
+<div class="quarto-title-block"><div><h1 class="title"><strong>NN Prediction Model</strong></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Martínez </p>
+          </div>
+  </div>
     
   
     
@@ -121,25 +128,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="similar-projects"><strong>Similar Projects</strong></h3>
 <p>The next are good examples of similar projects that have applied neural networks and machine learning techniques to predict football match outcomes:</p>
 <ul>
-<li><strong><a href="https://github.com/lorenzopalaia/Football-Prediction">lorenzopalaia/Football-Prediction</a></strong> (Palaia, 2024): Keras NN on historical data; full notebooks for prep/training/eval.</li>
-<li><strong><a href="https://github.com/giovannicampa/football_match_results_prediction">giovannicampa/football_match_results_prediction</a></strong> (Campa, 2019): MLP/TensorFlow predict goals/outcomes; 55–59% accuracy.</li>
-<li><strong><a href="https://github.com/AndrewCarterUK/football-predictor">AndrewCarterUK/football-predictor</a></strong> (Carter, 2018): Deep NN for Premier League using team stats.</li>
-<li><strong><a href="https://github.com/yuliang419/football-predictor">yuliang419/football-predictor</a></strong> (Yuliang, 2022): Simple NN for EPL from recent performance.</li>
+<li><a href="https://github.com/lorenzopalaia/Football-Prediction"><strong>lorenzopalaia/Football-Prediction</strong></a> (Palaia, 2024): Keras NN on historical data; full notebooks for prep/training/eval.</li>
+<li><a href="https://github.com/giovannicampa/football_match_results_prediction"><strong>giovannicampa/football_match_results_prediction</strong></a> (Campa, 2019): MLP/TensorFlow predict goals/outcomes; 55–59% accuracy.</li>
+<li><a href="https://github.com/AndrewCarterUK/football-predictor"><strong>AndrewCarterUK/football-predictor</strong></a> (Carter, 2018): Deep NN for Premier League using team stats.</li>
+<li><a href="https://github.com/yuliang419/football-predictor"><strong>yuliang419/football-predictor</strong></a> (Yuliang, 2022): Simple NN for EPL from recent performance.</li>
 </ul>
 </section>
 <section id="potential-pipeline" class="level3">
 <h3 class="anchored" data-anchor-id="potential-pipeline"><strong>Potential Pipeline</strong></h3>
 <p>Get data (FBref historical match data) → Preprocess (clean, feature engineering) → Train/Test split → Build NN model (Keras Sequential) → Train (forward/backward prop, gradient descent) → Evaluate (Macro F1-score on test set) → Hyperparameter tuning → Final evaluation.</p>
-<div id="d131cf46" class="cell" data-execution_count="1">
+<div id="8e04cf9b" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 <hr>
 </section>
 </section>
 <section id="get-the-data" class="level2">
 <h2 class="anchored" data-anchor-id="get-the-data"><strong>2. Get the Data</strong></h2>
-<div id="6962bc64" class="cell" data-execution_count="2">
+<div id="68e42fe5" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -152,8 +164,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">str</span>(project_root) <span class="kw">not</span> <span class="kw">in</span> sys.path:</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    sys.path.insert(<span class="dv">0</span>, <span class="bu">str</span>(project_root))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="051a67d0" class="cell" data-execution_count="3">
+<div id="66c4f137" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read all csv files and add season from file names like fixtures_2015-2016.csv</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
@@ -185,6 +200,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.dropna(how<span class="op">=</span><span class="st">"all"</span>, subset<span class="op">=</span>cols_to_check)</span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
@@ -384,8 +400,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="exploratory-analysis-and-insights" class="level2">
 <h2 class="anchored" data-anchor-id="exploratory-analysis-and-insights"><strong>3. Exploratory Analysis and Insights</strong></h2>
-<div id="e766690a" class="cell" data-execution_count="4">
+<div id="84029250" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df.info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class 'pandas.DataFrame'&gt;
 Index: 4180 entries, 0 to 4696
@@ -408,8 +427,11 @@ dtypes: float64(2), str(10)
 memory usage: 424.5 KB</code></pre>
 </div>
 </div>
-<div id="58274a57" class="cell" data-execution_count="5">
+<div id="1ed6aa33" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df.describe().transpose()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
@@ -457,7 +479,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="099aa928" class="cell" data-execution_count="6">
+<div id="e60a447c" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Null values count</span></span>
@@ -489,6 +513,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Number of Missing Values"</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
 <span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -497,14 +522,19 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="2bb97fd7" class="cell" data-execution_count="7">
+<div id="62ed5e7b" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Count of rows with all null values</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">int</span>(df.isnull().<span class="bu">all</span>(axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>0</code></pre>
 </div>
 </div>
-<div id="14bb99fe" class="cell" data-execution_count="8">
+<div id="f311a05e" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">15</span>))</span>
@@ -540,6 +570,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -548,7 +579,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="7a1410e9" class="cell" data-execution_count="9">
+<div id="5a5de373" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary clutter</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>ax1.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>ax1.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
@@ -567,6 +600,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">""</span>)</span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -575,7 +609,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="5d3cc805" class="cell" data-execution_count="10">
+<div id="2cc5efe4" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> df[<span class="st">"referee"</span>].groupby(</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"referee"</span>]).count().sort_values(</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
@@ -587,6 +623,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Number of matches"</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">""</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -595,7 +632,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="f110418f" class="cell" data-execution_count="11">
+<div id="f53e5641" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> df[<span class="st">"day"</span>].groupby(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"day"</span>]).count().sort_values(</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
@@ -608,6 +647,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.set_xlabel("Day")</span></span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.set_ylabel("Number of matches")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -616,7 +656,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="023cc63e" class="cell" data-execution_count="12">
+<div id="9ef8caa6" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>local_hour <span class="op">=</span> pd.to_numeric(</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"time"</span>].<span class="bu">str</span>[:<span class="dv">2</span>], errors<span class="op">=</span><span class="st">"coerce"</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>).dropna().astype(<span class="bu">int</span>)</span>
@@ -631,6 +673,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Hour of day"</span>, loc<span class="op">=</span><span class="st">"top"</span>)</span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
 <span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -639,12 +682,15 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="dd8209a9" class="cell" data-execution_count="13">
+<div id="796d8f0b" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> local_hour.plot(kind<span class="op">=</span><span class="st">"hist"</span>, bins<span class="op">=</span><span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Local hour distribution"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">15</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Frequency"</span>, loc<span class="op">=</span><span class="st">"top"</span>)</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -653,12 +699,15 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="e1071aa2" class="cell" data-execution_count="14">
+<div id="6002614f" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> df[<span class="st">"attendance"</span>].plot(kind<span class="op">=</span><span class="st">"hist"</span>, bins<span class="op">=</span><span class="dv">10</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Attendance distribution"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">15</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Frequency"</span>, loc<span class="op">=</span><span class="st">"top"</span>)</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -667,11 +716,17 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="3ea02dcf" class="cell" data-execution_count="15">
+<div id="2ebed0fa" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> df.copy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="f73d4a40" class="cell" data-execution_count="16">
+<div id="c308812d" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df_eda</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 
@@ -867,7 +922,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="af42b056" class="cell" data-execution_count="17">
+<div id="70c5fe09" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df_eda[<span class="st">"weekday"</span>] <span class="op">=</span> pd.to_datetime(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    df_eda[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>).dt.weekday <span class="op">+</span> <span class="dv">1</span></span>
@@ -877,8 +934,11 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>df_eda[<span class="st">"hour"</span>] <span class="op">=</span> pd.to_numeric(</span>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    df_eda[<span class="st">"time"</span>].<span class="bu">str</span>[:<span class="dv">2</span>], errors<span class="op">=</span><span class="st">"coerce"</span></span>
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>).dropna().astype(<span class="bu">int</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="0efe1faf" class="cell" data-execution_count="18">
+<div id="3eb6607c" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_home_outcome(score):</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(score):</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
@@ -895,8 +955,11 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
 <span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>df_eda[<span class="st">"home_outcome"</span>] <span class="op">=</span> df_eda[<span class="st">"score"</span>].<span class="bu">apply</span>(label_home_outcome)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="d5e6e863" class="cell" data-execution_count="19">
+<div id="2c9fcd5c" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -957,6 +1020,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -965,8 +1029,11 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="58a7a7fe" class="cell" data-execution_count="20">
+<div id="52a79daa" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df_eda.head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="20">
 <div>
 
@@ -1190,10 +1257,15 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="9a9a79d1" class="cell" data-execution_count="21">
+<div id="e4507fa8" class="cell" data-execution_count="21">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df_eda.sort_values(<span class="st">"date"</span>, inplace<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="dd7baea1" class="cell" data-execution_count="22">
+<div id="453b5389" class="cell" data-execution_count="22">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_venue_form_last_n(</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    df: pd.DataFrame,</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    n: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>,</span>
@@ -1226,9 +1298,13 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_venue_form_last_n(df_eda, n<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_venue_form_last_n(df_eda, n<span class="op">=</span><span class="dv">5</span>)</span>
 <span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_venue_form_last_n(df_eda, n<span class="op">=</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="f513c3b4" class="cell" data-execution_count="23">
+<div id="6d0db662" class="cell" data-execution_count="23">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df_eda[df_eda[<span class="st">"away"</span>] <span class="op">==</span> <span class="st">"Manchester Utd"</span>].head(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="23">
 <div>
 
@@ -1508,7 +1584,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="55ec78fc" class="cell" data-execution_count="24">
+<div id="cff42bb9" class="cell" data-execution_count="24">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> df_eda.corr(numeric_only<span class="op">=</span><span class="va">True</span>)</span>
@@ -1567,6 +1645,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1575,7 +1654,9 @@ memory usage: 424.5 KB</code></pre>
 </div>
 </div>
 </div>
-<div id="dba4eb40" class="cell" data-execution_count="25">
+<div id="4fc8f10c" class="cell" data-execution_count="25">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1661,8 +1742,11 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb27-83"><a href="#cb27-83" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_team_form_last_n(df_eda, n<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb27-84"><a href="#cb27-84" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_team_form_last_n(df_eda, n<span class="op">=</span><span class="dv">5</span>)</span>
 <span id="cb27-85"><a href="#cb27-85" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_team_form_last_n(df_eda, n<span class="op">=</span><span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="7bfacb05" class="cell" data-execution_count="26">
+<div id="9593ce52" class="cell" data-execution_count="26">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1721,6 +1805,7 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb28-56"><a href="#cb28-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-57"><a href="#cb28-57" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
 <span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1732,7 +1817,9 @@ memory usage: 424.5 KB</code></pre>
 </section>
 <section id="data-preparation-pipeline" class="level2">
 <h2 class="anchored" data-anchor-id="data-preparation-pipeline"><strong>4. Data Preparation Pipeline</strong></h2>
-<div id="7c2174df" class="cell" data-execution_count="27">
+<div id="9dda6e2a" class="cell" data-execution_count="27">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_home_outcome(score):</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(score):</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
@@ -1749,8 +1836,11 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
 <span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="co"># df["home_outcome"] = df_eda["score"].apply(label_home_outcome)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="2e67c39b" class="cell" data-execution_count="28">
+<div id="e585c7ba" class="cell" data-execution_count="28">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define X and y for modeling</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>df_cleaned <span class="op">=</span> df[df[<span class="st">"score"</span>].notna()]</span>
@@ -1758,8 +1848,11 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># X = df_cleaned.drop(columns=["score"])</span></span>
 <span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df_cleaned</span>
 <span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df_cleaned[<span class="st">"score"</span>].<span class="bu">apply</span>(label_home_outcome)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="43e0ccf8" class="cell" data-execution_count="29">
+<div id="ce75543c" class="cell" data-execution_count="29">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>df_dates <span class="op">=</span> pd.to_datetime(X[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>)</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>chronological_idx <span class="op">=</span> df_dates.sort_values().index</span>
@@ -1783,12 +1876,15 @@ memory usage: 424.5 KB</code></pre>
 <span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"(</span><span class="sc">{</span>df_dates<span class="sc">.</span>loc[test_idx]<span class="sc">.</span><span class="bu">min</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss"> -&gt; "</span></span>
 <span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>df_dates<span class="sc">.</span>loc[test_idx]<span class="sc">.</span><span class="bu">max</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss">)"</span></span>
 <span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Train: 4054 matches (2015-08-08 -&gt; 2026-02-10)
 Test:  126 matches (2026-02-11 -&gt; 2026-05-24)</code></pre>
 </div>
 </div>
-<div id="4e417900" class="cell" data-execution_count="30">
+<div id="e4f566f3" class="cell" data-execution_count="30">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> Pipeline</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> MinMaxScaler, RobustScaler</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1806,9 +1902,13 @@ Test:  126 matches (2026-02-11 -&gt; 2026-05-24)</code></pre>
 <span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="co"># information from the held-out (most recent) </span></span>
 <span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co"># matches.X_test_transformed = pipeline.transform(X_test)</span></span>
 <span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>X_train_transformed <span class="op">=</span> pipeline.fit_transform(X_train)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div id="205b1620" class="cell" data-execution_count="31">
+<div id="94470453" class="cell" data-execution_count="31">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>X_train_transformed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-display" data-execution_count="31">
 <div>
 
@@ -2115,16 +2215,21 @@ Test:  126 matches (2026-02-11 -&gt; 2026-05-24)</code></pre>
 </section>
 <section id="model-selection-training" class="level2">
 <h2 class="anchored" data-anchor-id="model-selection-training"><strong>5. Model Selection &amp; Training</strong></h2>
-<div id="edbb1530" class="cell" data-execution_count="32">
+<div id="ac095654" class="cell" data-execution_count="32">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"CUDA available:"</span>, torch.cuda.is_available())</span>
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Torch CUDA build:"</span>, torch.version.cuda)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>CUDA available: True
 Torch CUDA build: 11.8</code></pre>
 </div>
 </div>
+<!-- -->
+
 </section>
 
 </main>
@@ -2199,6 +2304,57 @@ Torch CUDA build: 11.8</code></pre>
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -2528,7 +2684,720 @@ Torch CUDA build: 11.8</code></pre>
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> '**NN Prediction Model**'</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> David Martínez</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## **1. Big Picture and Objectives**</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Objective**</span></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>By June 2026 (end of the Premier League season), develop and evaluate a feedforward (Sequential) neural network that predicts Premier League match outcomes (home win, draw, away win) using historical FBref data scraped from FBref, achieving a **Macro F1-score of at least 0.70** on a held-out test season, while applying the concepts learned in the 'Neural Networks and Deep Learning' course by deeplearning.ai (forward/backward propagation, gradient descent, regularization, and hyperparameter tuning).</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **Why Macro F1 over Accuracy?** The dataset is imbalanced (Home Win \~45%, Away Win \~30%, Draw \~25%). A naive model predicting "Home Win" always achieves \~45% accuracy without learning anything. Macro F1 weights all three classes equally, ensuring the model genuinely learns to predict draws and away wins — not just the dominant class.</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Similar Projects**</span></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>The next are good examples of similar projects that have applied neural networks and machine learning techniques to predict football match outcomes:</span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">**lorenzopalaia/Football-Prediction**</span><span class="co">](https://github.com/lorenzopalaia/Football-Prediction)</span> (Palaia, 2024): Keras NN on historical data; full notebooks for prep/training/eval.</span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">**giovannicampa/football_match_results_prediction**</span><span class="co">](https://github.com/giovannicampa/football_match_results_prediction)</span> (Campa, 2019): MLP/TensorFlow predict goals/outcomes; 55–59% accuracy.</span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">**AndrewCarterUK/football-predictor**</span><span class="co">](https://github.com/AndrewCarterUK/football-predictor)</span> (Carter, 2018): Deep NN for Premier League using team stats.</span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="co">[</span><span class="ot">**yuliang419/football-predictor**</span><span class="co">](https://github.com/yuliang419/football-predictor)</span> (Yuliang, 2022): Simple NN for EPL from recent performance.</span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a><span class="fu">### **Potential Pipeline**</span></span>
+<span id="cb37-31"><a href="#cb37-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-32"><a href="#cb37-32" aria-hidden="true" tabindex="-1"></a>Get data (FBref historical match data) → Preprocess (clean, feature engineering) → Train/Test split → Build NN model (Keras Sequential) → Train (forward/backward prop, gradient descent) → Evaluate (Macro F1-score on test set) → Hyperparameter tuning → Final evaluation.</span>
+<span id="cb37-33"><a href="#cb37-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-36"><a href="#cb37-36" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-37"><a href="#cb37-37" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb37-38"><a href="#cb37-38" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
+<span id="cb37-39"><a href="#cb37-39" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-40"><a href="#cb37-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-41"><a href="#cb37-41" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb37-42"><a href="#cb37-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-43"><a href="#cb37-43" aria-hidden="true" tabindex="-1"></a><span class="fu">## **2. Get the Data**</span></span>
+<span id="cb37-44"><a href="#cb37-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-47"><a href="#cb37-47" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-48"><a href="#cb37-48" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb37-49"><a href="#cb37-49" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb37-50"><a href="#cb37-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-51"><a href="#cb37-51" aria-hidden="true" tabindex="-1"></a>project_root <span class="op">=</span> Path.cwd().resolve()</span>
+<span id="cb37-52"><a href="#cb37-52" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (</span>
+<span id="cb37-53"><a href="#cb37-53" aria-hidden="true" tabindex="-1"></a>    project_root.name <span class="op">!=</span> <span class="st">"football-match-prediction-nn"</span></span>
+<span id="cb37-54"><a href="#cb37-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">and</span> project_root <span class="op">!=</span> project_root.parent</span>
+<span id="cb37-55"><a href="#cb37-55" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb37-56"><a href="#cb37-56" aria-hidden="true" tabindex="-1"></a>    project_root <span class="op">=</span> project_root.parent</span>
+<span id="cb37-57"><a href="#cb37-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-58"><a href="#cb37-58" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">str</span>(project_root) <span class="kw">not</span> <span class="kw">in</span> sys.path:</span>
+<span id="cb37-59"><a href="#cb37-59" aria-hidden="true" tabindex="-1"></a>    sys.path.insert(<span class="dv">0</span>, <span class="bu">str</span>(project_root))</span>
+<span id="cb37-60"><a href="#cb37-60" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-61"><a href="#cb37-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-64"><a href="#cb37-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-65"><a href="#cb37-65" aria-hidden="true" tabindex="-1"></a><span class="co"># read all csv files and add season from file names like fixtures_2015-2016.csv</span></span>
+<span id="cb37-66"><a href="#cb37-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb37-68"><a href="#cb37-68" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb37-69"><a href="#cb37-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-70"><a href="#cb37-70" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb37-71"><a href="#cb37-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-72"><a href="#cb37-72" aria-hidden="true" tabindex="-1"></a>cwd <span class="op">=</span> Path.cwd()</span>
+<span id="cb37-73"><a href="#cb37-73" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> cwd <span class="op">/</span> <span class="st">"src"</span> <span class="op">/</span> <span class="st">"data"</span></span>
+<span id="cb37-74"><a href="#cb37-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-75"><a href="#cb37-75" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> path.exists():</span>
+<span id="cb37-76"><a href="#cb37-76" aria-hidden="true" tabindex="-1"></a>    path <span class="op">=</span> cwd.parent <span class="op">/</span> <span class="st">"data"</span></span>
+<span id="cb37-77"><a href="#cb37-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-78"><a href="#cb37-78" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> path.exists():</span>
+<span id="cb37-79"><a href="#cb37-79" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">FileNotFoundError</span>(<span class="ss">f"Could not find data directory from </span><span class="sc">{</span>cwd<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-80"><a href="#cb37-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-81"><a href="#cb37-81" aria-hidden="true" tabindex="-1"></a>frames <span class="op">=</span> []</span>
+<span id="cb37-82"><a href="#cb37-82" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="bu">file</span> <span class="kw">in</span> <span class="bu">sorted</span>(path.glob(<span class="st">"*.csv"</span>)):</span>
+<span id="cb37-83"><a href="#cb37-83" aria-hidden="true" tabindex="-1"></a>    season_match <span class="op">=</span> re.search(<span class="vs">r"fixtures_</span><span class="kw">(</span><span class="dv">\d</span><span class="op">{4}</span><span class="vs">-</span><span class="dv">\d</span><span class="op">{4}</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>, <span class="bu">file</span>.stem)</span>
+<span id="cb37-84"><a href="#cb37-84" aria-hidden="true" tabindex="-1"></a>    season <span class="op">=</span> season_match.group(<span class="dv">1</span>) <span class="cf">if</span> season_match <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb37-85"><a href="#cb37-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-86"><a href="#cb37-86" aria-hidden="true" tabindex="-1"></a>    temp_df <span class="op">=</span> pd.read_csv(<span class="bu">file</span>)</span>
+<span id="cb37-87"><a href="#cb37-87" aria-hidden="true" tabindex="-1"></a>    temp_df[<span class="st">"season"</span>] <span class="op">=</span> season</span>
+<span id="cb37-88"><a href="#cb37-88" aria-hidden="true" tabindex="-1"></a>    frames.append(temp_df)</span>
+<span id="cb37-89"><a href="#cb37-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-90"><a href="#cb37-90" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.concat(frames, ignore_index<span class="op">=</span><span class="va">True</span>) <span class="cf">if</span> frames <span class="cf">else</span> pd.DataFrame()</span>
+<span id="cb37-91"><a href="#cb37-91" aria-hidden="true" tabindex="-1"></a>cols_to_check <span class="op">=</span> df.columns.difference([<span class="st">"season"</span>])</span>
+<span id="cb37-92"><a href="#cb37-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-93"><a href="#cb37-93" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.dropna(how<span class="op">=</span><span class="st">"all"</span>, subset<span class="op">=</span>cols_to_check)</span>
+<span id="cb37-94"><a href="#cb37-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-95"><a href="#cb37-95" aria-hidden="true" tabindex="-1"></a>df</span>
+<span id="cb37-96"><a href="#cb37-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-97"><a href="#cb37-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-98"><a href="#cb37-98" aria-hidden="true" tabindex="-1"></a>------------------------------------------------------------------------</span>
+<span id="cb37-99"><a href="#cb37-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-100"><a href="#cb37-100" aria-hidden="true" tabindex="-1"></a><span class="fu">## **3. Exploratory Analysis and Insights**</span></span>
+<span id="cb37-101"><a href="#cb37-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-104"><a href="#cb37-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-105"><a href="#cb37-105" aria-hidden="true" tabindex="-1"></a>df.info()</span>
+<span id="cb37-106"><a href="#cb37-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-107"><a href="#cb37-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-110"><a href="#cb37-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-111"><a href="#cb37-111" aria-hidden="true" tabindex="-1"></a>df.describe().transpose()</span>
+<span id="cb37-112"><a href="#cb37-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-113"><a href="#cb37-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-116"><a href="#cb37-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-117"><a href="#cb37-117" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb37-118"><a href="#cb37-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-119"><a href="#cb37-119" aria-hidden="true" tabindex="-1"></a><span class="co"># Null values count</span></span>
+<span id="cb37-120"><a href="#cb37-120" aria-hidden="true" tabindex="-1"></a>null_counts <span class="op">=</span> df.isnull().<span class="bu">sum</span>().sort_values(ascending<span class="op">=</span><span class="va">True</span>).where(<span class="kw">lambda</span> x: x <span class="op">&gt;</span> <span class="dv">0</span>).dropna()</span>
+<span id="cb37-121"><a href="#cb37-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-122"><a href="#cb37-122" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb37-123"><a href="#cb37-123" aria-hidden="true" tabindex="-1"></a>bars <span class="op">=</span> null_counts.plot(kind<span class="op">=</span><span class="st">"barh"</span>, ax<span class="op">=</span>ax)</span>
+<span id="cb37-124"><a href="#cb37-124" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Null Values Count </span><span class="ch">\n</span><span class="st">"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-125"><a href="#cb37-125" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary clutter</span></span>
+<span id="cb37-126"><a href="#cb37-126" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-127"><a href="#cb37-127" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-128"><a href="#cb37-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-129"><a href="#cb37-129" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: remove left spine for cleaner look</span></span>
+<span id="cb37-130"><a href="#cb37-130" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.spines["left"].set_visible(False)</span></span>
+<span id="cb37-131"><a href="#cb37-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-132"><a href="#cb37-132" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bar <span class="kw">in</span> ax.patches:</span>
+<span id="cb37-133"><a href="#cb37-133" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> <span class="bu">int</span>(bar.get_width())</span>
+<span id="cb37-134"><a href="#cb37-134" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb37-135"><a href="#cb37-135" aria-hidden="true" tabindex="-1"></a>        ax.text(</span>
+<span id="cb37-136"><a href="#cb37-136" aria-hidden="true" tabindex="-1"></a>            value,                                <span class="co"># x position: end of the bar</span></span>
+<span id="cb37-137"><a href="#cb37-137" aria-hidden="true" tabindex="-1"></a>            bar.get_y() <span class="op">+</span> bar.get_height() <span class="op">/</span> <span class="dv">2</span>,   <span class="co"># y position: middle of the bar</span></span>
+<span id="cb37-138"><a href="#cb37-138" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f" </span><span class="sc">{</span>value<span class="sc">:,}</span><span class="ss">"</span>,                        <span class="co"># text</span></span>
+<span id="cb37-139"><a href="#cb37-139" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">"left"</span>,                            <span class="co"># horizontal alignment</span></span>
+<span id="cb37-140"><a href="#cb37-140" aria-hidden="true" tabindex="-1"></a>            va<span class="op">=</span><span class="st">"center"</span>,                          <span class="co"># vertical alignment</span></span>
+<span id="cb37-141"><a href="#cb37-141" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span>,</span>
+<span id="cb37-142"><a href="#cb37-142" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb37-143"><a href="#cb37-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-144"><a href="#cb37-144" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.set_ylabel("Count")</span></span>
+<span id="cb37-145"><a href="#cb37-145" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Number of Missing Values"</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-146"><a href="#cb37-146" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb37-147"><a href="#cb37-147" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb37-148"><a href="#cb37-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-149"><a href="#cb37-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-152"><a href="#cb37-152" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-153"><a href="#cb37-153" aria-hidden="true" tabindex="-1"></a><span class="co"># Count of rows with all null values</span></span>
+<span id="cb37-154"><a href="#cb37-154" aria-hidden="true" tabindex="-1"></a><span class="bu">int</span>(df.isnull().<span class="bu">all</span>(axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>())</span>
+<span id="cb37-155"><a href="#cb37-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-156"><a href="#cb37-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-159"><a href="#cb37-159" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-160"><a href="#cb37-160" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb37-161"><a href="#cb37-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-162"><a href="#cb37-162" aria-hidden="true" tabindex="-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">15</span>))</span>
+<span id="cb37-163"><a href="#cb37-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-164"><a href="#cb37-164" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary clutter</span></span>
+<span id="cb37-165"><a href="#cb37-165" aria-hidden="true" tabindex="-1"></a>ax1.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-166"><a href="#cb37-166" aria-hidden="true" tabindex="-1"></a>ax1.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-167"><a href="#cb37-167" aria-hidden="true" tabindex="-1"></a>ax2.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-168"><a href="#cb37-168" aria-hidden="true" tabindex="-1"></a>ax2.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-169"><a href="#cb37-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-170"><a href="#cb37-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-171"><a href="#cb37-171" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"home"</span>].groupby(</span>
+<span id="cb37-172"><a href="#cb37-172" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"home"</span>]</span>
+<span id="cb37-173"><a href="#cb37-173" aria-hidden="true" tabindex="-1"></a>).count(</span>
+<span id="cb37-174"><a href="#cb37-174" aria-hidden="true" tabindex="-1"></a>).sort_values(</span>
+<span id="cb37-175"><a href="#cb37-175" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
+<span id="cb37-176"><a href="#cb37-176" aria-hidden="true" tabindex="-1"></a>).plot(</span>
+<span id="cb37-177"><a href="#cb37-177" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"barh"</span>, ax<span class="op">=</span>ax1</span>
+<span id="cb37-178"><a href="#cb37-178" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-179"><a href="#cb37-179" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">"Home matches per team"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-180"><a href="#cb37-180" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">""</span>)</span>
+<span id="cb37-181"><a href="#cb37-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-182"><a href="#cb37-182" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"away"</span>].groupby(</span>
+<span id="cb37-183"><a href="#cb37-183" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"away"</span>]</span>
+<span id="cb37-184"><a href="#cb37-184" aria-hidden="true" tabindex="-1"></a>).count(</span>
+<span id="cb37-185"><a href="#cb37-185" aria-hidden="true" tabindex="-1"></a>).sort_values(</span>
+<span id="cb37-186"><a href="#cb37-186" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
+<span id="cb37-187"><a href="#cb37-187" aria-hidden="true" tabindex="-1"></a>).plot(</span>
+<span id="cb37-188"><a href="#cb37-188" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"barh"</span>, ax<span class="op">=</span>ax2</span>
+<span id="cb37-189"><a href="#cb37-189" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-190"><a href="#cb37-190" aria-hidden="true" tabindex="-1"></a>ax2.set_title(<span class="st">"Away matches per team"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-191"><a href="#cb37-191" aria-hidden="true" tabindex="-1"></a>ax2.set_ylabel(<span class="st">""</span>)</span>
+<span id="cb37-192"><a href="#cb37-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-193"><a href="#cb37-193" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb37-194"><a href="#cb37-194" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb37-195"><a href="#cb37-195" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-196"><a href="#cb37-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-199"><a href="#cb37-199" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-200"><a href="#cb37-200" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove unnecessary clutter</span></span>
+<span id="cb37-201"><a href="#cb37-201" aria-hidden="true" tabindex="-1"></a>ax1.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-202"><a href="#cb37-202" aria-hidden="true" tabindex="-1"></a>ax1.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-203"><a href="#cb37-203" aria-hidden="true" tabindex="-1"></a>ax2.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-204"><a href="#cb37-204" aria-hidden="true" tabindex="-1"></a>ax2.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-205"><a href="#cb37-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-206"><a href="#cb37-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-207"><a href="#cb37-207" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> df[<span class="st">"venue"</span>].groupby(</span>
+<span id="cb37-208"><a href="#cb37-208" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"venue"</span>]).count().sort_values(</span>
+<span id="cb37-209"><a href="#cb37-209" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
+<span id="cb37-210"><a href="#cb37-210" aria-hidden="true" tabindex="-1"></a>).plot(</span>
+<span id="cb37-211"><a href="#cb37-211" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"barh"</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">10</span>)</span>
+<span id="cb37-212"><a href="#cb37-212" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-213"><a href="#cb37-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-214"><a href="#cb37-214" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Matches per venue"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-215"><a href="#cb37-215" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">""</span>)</span>
+<span id="cb37-216"><a href="#cb37-216" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-217"><a href="#cb37-217" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-218"><a href="#cb37-218" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-219"><a href="#cb37-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-222"><a href="#cb37-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-223"><a href="#cb37-223" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> df[<span class="st">"referee"</span>].groupby(</span>
+<span id="cb37-224"><a href="#cb37-224" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"referee"</span>]).count().sort_values(</span>
+<span id="cb37-225"><a href="#cb37-225" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
+<span id="cb37-226"><a href="#cb37-226" aria-hidden="true" tabindex="-1"></a>).plot(</span>
+<span id="cb37-227"><a href="#cb37-227" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"barh"</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">10</span>)</span>
+<span id="cb37-228"><a href="#cb37-228" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-229"><a href="#cb37-229" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Matches per referee"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-230"><a href="#cb37-230" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-231"><a href="#cb37-231" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-232"><a href="#cb37-232" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Number of matches"</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-233"><a href="#cb37-233" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">""</span>)<span class="op">;</span></span>
+<span id="cb37-234"><a href="#cb37-234" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-235"><a href="#cb37-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-238"><a href="#cb37-238" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-239"><a href="#cb37-239" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> df[<span class="st">"day"</span>].groupby(</span>
+<span id="cb37-240"><a href="#cb37-240" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"day"</span>]).count().sort_values(</span>
+<span id="cb37-241"><a href="#cb37-241" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
+<span id="cb37-242"><a href="#cb37-242" aria-hidden="true" tabindex="-1"></a>).plot(</span>
+<span id="cb37-243"><a href="#cb37-243" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"barh"</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>)</span>
+<span id="cb37-244"><a href="#cb37-244" aria-hidden="true" tabindex="-1"></a>)<span class="op">;</span></span>
+<span id="cb37-245"><a href="#cb37-245" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Matches per day"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-246"><a href="#cb37-246" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">""</span>)</span>
+<span id="cb37-247"><a href="#cb37-247" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-248"><a href="#cb37-248" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-249"><a href="#cb37-249" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.set_xlabel("Day")</span></span>
+<span id="cb37-250"><a href="#cb37-250" aria-hidden="true" tabindex="-1"></a><span class="co"># ax.set_ylabel("Number of matches")</span></span>
+<span id="cb37-251"><a href="#cb37-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-252"><a href="#cb37-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-255"><a href="#cb37-255" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-256"><a href="#cb37-256" aria-hidden="true" tabindex="-1"></a>local_hour <span class="op">=</span> pd.to_numeric(</span>
+<span id="cb37-257"><a href="#cb37-257" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"time"</span>].<span class="bu">str</span>[:<span class="dv">2</span>], errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb37-258"><a href="#cb37-258" aria-hidden="true" tabindex="-1"></a>).dropna().astype(<span class="bu">int</span>)</span>
+<span id="cb37-259"><a href="#cb37-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-260"><a href="#cb37-260" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> local_hour.groupby(local_hour).count().sort_values(</span>
+<span id="cb37-261"><a href="#cb37-261" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">True</span></span>
+<span id="cb37-262"><a href="#cb37-262" aria-hidden="true" tabindex="-1"></a>).plot(</span>
+<span id="cb37-263"><a href="#cb37-263" aria-hidden="true" tabindex="-1"></a>    kind<span class="op">=</span><span class="st">"barh"</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>)</span>
+<span id="cb37-264"><a href="#cb37-264" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-265"><a href="#cb37-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-266"><a href="#cb37-266" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Matches per local hour"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-267"><a href="#cb37-267" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Hour of day"</span>, loc<span class="op">=</span><span class="st">"top"</span>)</span>
+<span id="cb37-268"><a href="#cb37-268" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-269"><a href="#cb37-269" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-270"><a href="#cb37-270" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-271"><a href="#cb37-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-274"><a href="#cb37-274" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-275"><a href="#cb37-275" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> local_hour.plot(kind<span class="op">=</span><span class="st">"hist"</span>, bins<span class="op">=</span><span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
+<span id="cb37-276"><a href="#cb37-276" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Local hour distribution"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">15</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-277"><a href="#cb37-277" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Frequency"</span>, loc<span class="op">=</span><span class="st">"top"</span>)</span>
+<span id="cb37-278"><a href="#cb37-278" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-279"><a href="#cb37-279" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-280"><a href="#cb37-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-281"><a href="#cb37-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-284"><a href="#cb37-284" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-285"><a href="#cb37-285" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> df[<span class="st">"attendance"</span>].plot(kind<span class="op">=</span><span class="st">"hist"</span>, bins<span class="op">=</span><span class="dv">10</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">5</span>))</span>
+<span id="cb37-286"><a href="#cb37-286" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Attendance distribution"</span>, fontsize<span class="op">=</span><span class="dv">14</span>, pad<span class="op">=</span><span class="dv">15</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-287"><a href="#cb37-287" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Frequency"</span>, loc<span class="op">=</span><span class="st">"top"</span>)</span>
+<span id="cb37-288"><a href="#cb37-288" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-289"><a href="#cb37-289" aria-hidden="true" tabindex="-1"></a>ax.spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-290"><a href="#cb37-290" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-291"><a href="#cb37-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-294"><a href="#cb37-294" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-295"><a href="#cb37-295" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> df.copy()</span>
+<span id="cb37-296"><a href="#cb37-296" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-297"><a href="#cb37-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-300"><a href="#cb37-300" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-301"><a href="#cb37-301" aria-hidden="true" tabindex="-1"></a>df_eda</span>
+<span id="cb37-302"><a href="#cb37-302" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-303"><a href="#cb37-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-306"><a href="#cb37-306" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-307"><a href="#cb37-307" aria-hidden="true" tabindex="-1"></a>df_eda[<span class="st">"weekday"</span>] <span class="op">=</span> pd.to_datetime(</span>
+<span id="cb37-308"><a href="#cb37-308" aria-hidden="true" tabindex="-1"></a>    df_eda[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb37-309"><a href="#cb37-309" aria-hidden="true" tabindex="-1"></a>).dt.weekday <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb37-310"><a href="#cb37-310" aria-hidden="true" tabindex="-1"></a>df_eda[<span class="st">"month"</span>] <span class="op">=</span> pd.to_datetime(</span>
+<span id="cb37-311"><a href="#cb37-311" aria-hidden="true" tabindex="-1"></a>    df_eda[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb37-312"><a href="#cb37-312" aria-hidden="true" tabindex="-1"></a>).dt.month</span>
+<span id="cb37-313"><a href="#cb37-313" aria-hidden="true" tabindex="-1"></a>df_eda[<span class="st">"hour"</span>] <span class="op">=</span> pd.to_numeric(</span>
+<span id="cb37-314"><a href="#cb37-314" aria-hidden="true" tabindex="-1"></a>    df_eda[<span class="st">"time"</span>].<span class="bu">str</span>[:<span class="dv">2</span>], errors<span class="op">=</span><span class="st">"coerce"</span></span>
+<span id="cb37-315"><a href="#cb37-315" aria-hidden="true" tabindex="-1"></a>).dropna().astype(<span class="bu">int</span>)</span>
+<span id="cb37-316"><a href="#cb37-316" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-317"><a href="#cb37-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-320"><a href="#cb37-320" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-321"><a href="#cb37-321" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_home_outcome(score):</span>
+<span id="cb37-322"><a href="#cb37-322" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(score):</span>
+<span id="cb37-323"><a href="#cb37-323" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb37-324"><a href="#cb37-324" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb37-325"><a href="#cb37-325" aria-hidden="true" tabindex="-1"></a>        home_score, away_score <span class="op">=</span> <span class="bu">map</span>(<span class="bu">int</span>, score.split(<span class="st">"–"</span>))</span>
+<span id="cb37-326"><a href="#cb37-326" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> home_score <span class="op">&gt;</span> away_score:</span>
+<span id="cb37-327"><a href="#cb37-327" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb37-328"><a href="#cb37-328" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> home_score <span class="op">&lt;</span> away_score:</span>
+<span id="cb37-329"><a href="#cb37-329" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb37-330"><a href="#cb37-330" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb37-331"><a href="#cb37-331" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb37-332"><a href="#cb37-332" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb37-333"><a href="#cb37-333" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Error encoding score '</span><span class="sc">{</span>score<span class="sc">}</span><span class="ss">': </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-334"><a href="#cb37-334" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb37-335"><a href="#cb37-335" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-336"><a href="#cb37-336" aria-hidden="true" tabindex="-1"></a>df_eda[<span class="st">"home_outcome"</span>] <span class="op">=</span> df_eda[<span class="st">"score"</span>].<span class="bu">apply</span>(label_home_outcome)</span>
+<span id="cb37-337"><a href="#cb37-337" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-338"><a href="#cb37-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-341"><a href="#cb37-341" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-342"><a href="#cb37-342" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb37-343"><a href="#cb37-343" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb37-344"><a href="#cb37-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-345"><a href="#cb37-345" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> df_eda.corr(numeric_only<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-346"><a href="#cb37-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-347"><a href="#cb37-347" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by absolute correlation with home_outcome</span></span>
+<span id="cb37-348"><a href="#cb37-348" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> <span class="st">"home_outcome"</span></span>
+<span id="cb37-349"><a href="#cb37-349" aria-hidden="true" tabindex="-1"></a>corr_with_target <span class="op">=</span> corr_matrix[target].drop(</span>
+<span id="cb37-350"><a href="#cb37-350" aria-hidden="true" tabindex="-1"></a>    target</span>
+<span id="cb37-351"><a href="#cb37-351" aria-hidden="true" tabindex="-1"></a>).sort_values(key<span class="op">=</span><span class="bu">abs</span>, ascending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-352"><a href="#cb37-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-353"><a href="#cb37-353" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">20</span>))</span>
+<span id="cb37-354"><a href="#cb37-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-355"><a href="#cb37-355" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar chart: correlation of each feature with home_outcome</span></span>
+<span id="cb37-356"><a href="#cb37-356" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">"#d73027"</span> <span class="cf">if</span> v <span class="op">&lt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">"#4575b4"</span> <span class="cf">for</span> v <span class="kw">in</span> corr_with_target]</span>
+<span id="cb37-357"><a href="#cb37-357" aria-hidden="true" tabindex="-1"></a>corr_with_target.plot(kind<span class="op">=</span><span class="st">"barh"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>], color<span class="op">=</span>colors)</span>
+<span id="cb37-358"><a href="#cb37-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-359"><a href="#cb37-359" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep x-axis centered at zero with symmetric limits</span></span>
+<span id="cb37-360"><a href="#cb37-360" aria-hidden="true" tabindex="-1"></a>max_abs <span class="op">=</span> corr_with_target.<span class="bu">abs</span>().<span class="bu">max</span>()</span>
+<span id="cb37-361"><a href="#cb37-361" aria-hidden="true" tabindex="-1"></a>x_pad <span class="op">=</span> max_abs <span class="op">*</span> <span class="fl">0.15</span> <span class="cf">if</span> max_abs <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="fl">0.1</span></span>
+<span id="cb37-362"><a href="#cb37-362" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xlim(<span class="op">-</span>(max_abs <span class="op">+</span> x_pad), max_abs <span class="op">+</span> x_pad)</span>
+<span id="cb37-363"><a href="#cb37-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-364"><a href="#cb37-364" aria-hidden="true" tabindex="-1"></a><span class="co"># Add value labels at the end of each bar</span></span>
+<span id="cb37-365"><a href="#cb37-365" aria-hidden="true" tabindex="-1"></a>offset <span class="op">=</span> (max_abs <span class="op">+</span> x_pad) <span class="op">*</span> <span class="fl">0.02</span></span>
+<span id="cb37-366"><a href="#cb37-366" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> patch, value <span class="kw">in</span> <span class="bu">zip</span>(axes[<span class="dv">0</span>].patches, corr_with_target.values):</span>
+<span id="cb37-367"><a href="#cb37-367" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> patch.get_y() <span class="op">+</span> patch.get_height() <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb37-368"><a href="#cb37-368" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
+<span id="cb37-369"><a href="#cb37-369" aria-hidden="true" tabindex="-1"></a>        axes[<span class="dv">0</span>].text(</span>
+<span id="cb37-370"><a href="#cb37-370" aria-hidden="true" tabindex="-1"></a>            value <span class="op">+</span> offset,</span>
+<span id="cb37-371"><a href="#cb37-371" aria-hidden="true" tabindex="-1"></a>            y,</span>
+<span id="cb37-372"><a href="#cb37-372" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb37-373"><a href="#cb37-373" aria-hidden="true" tabindex="-1"></a>            va<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb37-374"><a href="#cb37-374" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb37-375"><a href="#cb37-375" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span></span>
+<span id="cb37-376"><a href="#cb37-376" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb37-377"><a href="#cb37-377" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb37-378"><a href="#cb37-378" aria-hidden="true" tabindex="-1"></a>        axes[<span class="dv">0</span>].text(</span>
+<span id="cb37-379"><a href="#cb37-379" aria-hidden="true" tabindex="-1"></a>            value <span class="op">-</span> offset,</span>
+<span id="cb37-380"><a href="#cb37-380" aria-hidden="true" tabindex="-1"></a>            y,</span>
+<span id="cb37-381"><a href="#cb37-381" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb37-382"><a href="#cb37-382" aria-hidden="true" tabindex="-1"></a>            va<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb37-383"><a href="#cb37-383" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">"right"</span>,</span>
+<span id="cb37-384"><a href="#cb37-384" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span></span>
+<span id="cb37-385"><a href="#cb37-385" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb37-386"><a href="#cb37-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-387"><a href="#cb37-387" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(</span>
+<span id="cb37-388"><a href="#cb37-388" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Feature Correlation with </span><span class="sc">{</span>target<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-389"><a href="#cb37-389" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"Pearson r"</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-390"><a href="#cb37-390" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb37-391"><a href="#cb37-391" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-392"><a href="#cb37-392" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-393"><a href="#cb37-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-394"><a href="#cb37-394" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap: lower triangle only (includes diagonal)</span></span>
+<span id="cb37-395"><a href="#cb37-395" aria-hidden="true" tabindex="-1"></a><span class="co"># mask = np.triu(np.ones_like(corr_matrix, dtype=bool))</span></span>
+<span id="cb37-396"><a href="#cb37-396" aria-hidden="true" tabindex="-1"></a>sns.heatmap(corr_matrix, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">".2f"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>, center<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb37-397"><a href="#cb37-397" aria-hidden="true" tabindex="-1"></a>            linewidths<span class="op">=</span><span class="fl">0.0</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>], vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb37-398"><a href="#cb37-398" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Full Correlation Heatmap"</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-399"><a href="#cb37-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-400"><a href="#cb37-400" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb37-401"><a href="#cb37-401" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb37-402"><a href="#cb37-402" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-403"><a href="#cb37-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-406"><a href="#cb37-406" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-407"><a href="#cb37-407" aria-hidden="true" tabindex="-1"></a>df_eda.head(<span class="dv">10</span>)</span>
+<span id="cb37-408"><a href="#cb37-408" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-409"><a href="#cb37-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-412"><a href="#cb37-412" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-413"><a href="#cb37-413" aria-hidden="true" tabindex="-1"></a>df_eda.sort_values(<span class="st">"date"</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-414"><a href="#cb37-414" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-415"><a href="#cb37-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-418"><a href="#cb37-418" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-419"><a href="#cb37-419" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_venue_form_last_n(</span>
+<span id="cb37-420"><a href="#cb37-420" aria-hidden="true" tabindex="-1"></a>    df: pd.DataFrame,</span>
+<span id="cb37-421"><a href="#cb37-421" aria-hidden="true" tabindex="-1"></a>    n: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>,</span>
+<span id="cb37-422"><a href="#cb37-422" aria-hidden="true" tabindex="-1"></a>    outcome_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"home_outcome"</span>,</span>
+<span id="cb37-423"><a href="#cb37-423" aria-hidden="true" tabindex="-1"></a>    season_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"season"</span>,</span>
+<span id="cb37-424"><a href="#cb37-424" aria-hidden="true" tabindex="-1"></a>    home_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"home"</span>,</span>
+<span id="cb37-425"><a href="#cb37-425" aria-hidden="true" tabindex="-1"></a>    away_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"away"</span>,</span>
+<span id="cb37-426"><a href="#cb37-426" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> pd.DataFrame:</span>
+<span id="cb37-427"><a href="#cb37-427" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Add venue-specific rolling form columns to *df* and return it.</span></span>
+<span id="cb37-428"><a href="#cb37-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-429"><a href="#cb37-429" aria-hidden="true" tabindex="-1"></a><span class="co">    Columns added:</span></span>
+<span id="cb37-430"><a href="#cb37-430" aria-hidden="true" tabindex="-1"></a><span class="co">      - home_team_home_matches_form_balance_last_n</span></span>
+<span id="cb37-431"><a href="#cb37-431" aria-hidden="true" tabindex="-1"></a><span class="co">      - away_team_away_matches_form_balance_last_n</span></span>
+<span id="cb37-432"><a href="#cb37-432" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb37-433"><a href="#cb37-433" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> df.copy()</span>
+<span id="cb37-434"><a href="#cb37-434" aria-hidden="true" tabindex="-1"></a>    out[<span class="ss">f"home_team_home_matches_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> (</span>
+<span id="cb37-435"><a href="#cb37-435" aria-hidden="true" tabindex="-1"></a>        out.groupby([season_col, home_col])[outcome_col]</span>
+<span id="cb37-436"><a href="#cb37-436" aria-hidden="true" tabindex="-1"></a>        .transform(<span class="kw">lambda</span> s: s.shift(<span class="dv">1</span>).rolling(n, min_periods<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>())</span>
+<span id="cb37-437"><a href="#cb37-437" aria-hidden="true" tabindex="-1"></a>        .fillna(<span class="dv">0</span>)</span>
+<span id="cb37-438"><a href="#cb37-438" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-439"><a href="#cb37-439" aria-hidden="true" tabindex="-1"></a>    out[<span class="ss">f"away_team_away_matches_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> (</span>
+<span id="cb37-440"><a href="#cb37-440" aria-hidden="true" tabindex="-1"></a>        out.groupby([season_col, away_col])[outcome_col]</span>
+<span id="cb37-441"><a href="#cb37-441" aria-hidden="true" tabindex="-1"></a>        .transform(<span class="kw">lambda</span> s: s.shift(<span class="dv">1</span>).rolling(n, min_periods<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>())</span>
+<span id="cb37-442"><a href="#cb37-442" aria-hidden="true" tabindex="-1"></a>        .fillna(<span class="dv">0</span>)</span>
+<span id="cb37-443"><a href="#cb37-443" aria-hidden="true" tabindex="-1"></a>        .mul(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb37-444"><a href="#cb37-444" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-445"><a href="#cb37-445" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb37-446"><a href="#cb37-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-447"><a href="#cb37-447" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_venue_form_last_n(df_eda, n<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb37-448"><a href="#cb37-448" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_venue_form_last_n(df_eda, n<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb37-449"><a href="#cb37-449" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_venue_form_last_n(df_eda, n<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb37-450"><a href="#cb37-450" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_venue_form_last_n(df_eda, n<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb37-451"><a href="#cb37-451" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-452"><a href="#cb37-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-455"><a href="#cb37-455" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-456"><a href="#cb37-456" aria-hidden="true" tabindex="-1"></a>df_eda[df_eda[<span class="st">"away"</span>] <span class="op">==</span> <span class="st">"Manchester Utd"</span>].head(<span class="dv">10</span>)</span>
+<span id="cb37-457"><a href="#cb37-457" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-458"><a href="#cb37-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-461"><a href="#cb37-461" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-462"><a href="#cb37-462" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb37-463"><a href="#cb37-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-464"><a href="#cb37-464" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> df_eda.corr(numeric_only<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-465"><a href="#cb37-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-466"><a href="#cb37-466" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by absolute correlation with home_outcome</span></span>
+<span id="cb37-467"><a href="#cb37-467" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> <span class="st">"home_outcome"</span></span>
+<span id="cb37-468"><a href="#cb37-468" aria-hidden="true" tabindex="-1"></a>corr_with_target <span class="op">=</span> corr_matrix[target].drop(</span>
+<span id="cb37-469"><a href="#cb37-469" aria-hidden="true" tabindex="-1"></a>    target</span>
+<span id="cb37-470"><a href="#cb37-470" aria-hidden="true" tabindex="-1"></a>).sort_values(key<span class="op">=</span><span class="bu">abs</span>, ascending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-471"><a href="#cb37-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-472"><a href="#cb37-472" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">20</span>))</span>
+<span id="cb37-473"><a href="#cb37-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-474"><a href="#cb37-474" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-475"><a href="#cb37-475" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-476"><a href="#cb37-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-477"><a href="#cb37-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-478"><a href="#cb37-478" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar chart: correlation of each feature with home_outcome</span></span>
+<span id="cb37-479"><a href="#cb37-479" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">"#d73027"</span> <span class="cf">if</span> v <span class="op">&lt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">"#4575b4"</span> <span class="cf">for</span> v <span class="kw">in</span> corr_with_target]</span>
+<span id="cb37-480"><a href="#cb37-480" aria-hidden="true" tabindex="-1"></a>corr_with_target.plot(kind<span class="op">=</span><span class="st">"barh"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>], color<span class="op">=</span>colors)</span>
+<span id="cb37-481"><a href="#cb37-481" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(</span>
+<span id="cb37-482"><a href="#cb37-482" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Feature Correlation with </span><span class="sc">{</span>target<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span></span>
+<span id="cb37-483"><a href="#cb37-483" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-484"><a href="#cb37-484" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"Pearson r"</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-485"><a href="#cb37-485" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb37-486"><a href="#cb37-486" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-487"><a href="#cb37-487" aria-hidden="true" tabindex="-1"></a><span class="co"># Add value labels at the end of each bar</span></span>
+<span id="cb37-488"><a href="#cb37-488" aria-hidden="true" tabindex="-1"></a>max_abs <span class="op">=</span> corr_with_target.<span class="bu">abs</span>().<span class="bu">max</span>()</span>
+<span id="cb37-489"><a href="#cb37-489" aria-hidden="true" tabindex="-1"></a>x_pad <span class="op">=</span> max_abs <span class="op">*</span> <span class="fl">0.15</span> <span class="cf">if</span> max_abs <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="fl">0.1</span></span>
+<span id="cb37-490"><a href="#cb37-490" aria-hidden="true" tabindex="-1"></a>offset <span class="op">=</span> (max_abs <span class="op">+</span> x_pad) <span class="op">*</span> <span class="fl">0.02</span></span>
+<span id="cb37-491"><a href="#cb37-491" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> patch, value <span class="kw">in</span> <span class="bu">zip</span>(axes[<span class="dv">0</span>].patches, corr_with_target.values):</span>
+<span id="cb37-492"><a href="#cb37-492" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> patch.get_y() <span class="op">+</span> patch.get_height() <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb37-493"><a href="#cb37-493" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
+<span id="cb37-494"><a href="#cb37-494" aria-hidden="true" tabindex="-1"></a>        axes[<span class="dv">0</span>].text(</span>
+<span id="cb37-495"><a href="#cb37-495" aria-hidden="true" tabindex="-1"></a>            value <span class="op">+</span> offset,</span>
+<span id="cb37-496"><a href="#cb37-496" aria-hidden="true" tabindex="-1"></a>            y,</span>
+<span id="cb37-497"><a href="#cb37-497" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb37-498"><a href="#cb37-498" aria-hidden="true" tabindex="-1"></a>            va<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb37-499"><a href="#cb37-499" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb37-500"><a href="#cb37-500" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span></span>
+<span id="cb37-501"><a href="#cb37-501" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb37-502"><a href="#cb37-502" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb37-503"><a href="#cb37-503" aria-hidden="true" tabindex="-1"></a>        axes[<span class="dv">0</span>].text(</span>
+<span id="cb37-504"><a href="#cb37-504" aria-hidden="true" tabindex="-1"></a>            value <span class="op">-</span> offset,</span>
+<span id="cb37-505"><a href="#cb37-505" aria-hidden="true" tabindex="-1"></a>            y,</span>
+<span id="cb37-506"><a href="#cb37-506" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb37-507"><a href="#cb37-507" aria-hidden="true" tabindex="-1"></a>            va<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb37-508"><a href="#cb37-508" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">"right"</span>,</span>
+<span id="cb37-509"><a href="#cb37-509" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span></span>
+<span id="cb37-510"><a href="#cb37-510" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb37-511"><a href="#cb37-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-512"><a href="#cb37-512" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap: lower triangle only (includes diagonal)</span></span>
+<span id="cb37-513"><a href="#cb37-513" aria-hidden="true" tabindex="-1"></a><span class="co"># mask = np.triu(np.ones_like(corr_matrix, dtype=bool), k=1)</span></span>
+<span id="cb37-514"><a href="#cb37-514" aria-hidden="true" tabindex="-1"></a>sns.heatmap(corr_matrix, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">".1f"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>, center<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb37-515"><a href="#cb37-515" aria-hidden="true" tabindex="-1"></a>            linewidths<span class="op">=</span><span class="fl">0.0</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>], vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb37-516"><a href="#cb37-516" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Full Correlation Heatmap"</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-517"><a href="#cb37-517" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-518"><a href="#cb37-518" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb37-519"><a href="#cb37-519" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb37-520"><a href="#cb37-520" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-521"><a href="#cb37-521" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-524"><a href="#cb37-524" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-525"><a href="#cb37-525" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb37-526"><a href="#cb37-526" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-527"><a href="#cb37-527" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-528"><a href="#cb37-528" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_team_form_last_n(</span>
+<span id="cb37-529"><a href="#cb37-529" aria-hidden="true" tabindex="-1"></a>    df: pd.DataFrame,</span>
+<span id="cb37-530"><a href="#cb37-530" aria-hidden="true" tabindex="-1"></a>    n: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>,</span>
+<span id="cb37-531"><a href="#cb37-531" aria-hidden="true" tabindex="-1"></a>    outcome_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"home_outcome"</span>,</span>
+<span id="cb37-532"><a href="#cb37-532" aria-hidden="true" tabindex="-1"></a>    season_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"season"</span>,</span>
+<span id="cb37-533"><a href="#cb37-533" aria-hidden="true" tabindex="-1"></a>    date_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"date"</span>,</span>
+<span id="cb37-534"><a href="#cb37-534" aria-hidden="true" tabindex="-1"></a>    time_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"time"</span>,</span>
+<span id="cb37-535"><a href="#cb37-535" aria-hidden="true" tabindex="-1"></a>    home_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"home"</span>,</span>
+<span id="cb37-536"><a href="#cb37-536" aria-hidden="true" tabindex="-1"></a>    away_col: <span class="bu">str</span> <span class="op">=</span> <span class="st">"away"</span>,</span>
+<span id="cb37-537"><a href="#cb37-537" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> pd.DataFrame:</span>
+<span id="cb37-538"><a href="#cb37-538" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> df.copy()</span>
+<span id="cb37-539"><a href="#cb37-539" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-540"><a href="#cb37-540" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Stable match id for merging features back</span></span>
+<span id="cb37-541"><a href="#cb37-541" aria-hidden="true" tabindex="-1"></a>    out[<span class="st">"_match_id"</span>] <span class="op">=</span> out.index</span>
+<span id="cb37-542"><a href="#cb37-542" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-543"><a href="#cb37-543" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Build sortable kickoff datetime (date + time)</span></span>
+<span id="cb37-544"><a href="#cb37-544" aria-hidden="true" tabindex="-1"></a>    date_part <span class="op">=</span> pd.to_datetime(out[date_col], errors<span class="op">=</span><span class="st">"coerce"</span>)</span>
+<span id="cb37-545"><a href="#cb37-545" aria-hidden="true" tabindex="-1"></a>    time_part <span class="op">=</span> pd.to_timedelta(</span>
+<span id="cb37-546"><a href="#cb37-546" aria-hidden="true" tabindex="-1"></a>        out[time_col].fillna(<span class="st">"00:00"</span>) <span class="op">+</span> <span class="st">":00"</span>,</span>
+<span id="cb37-547"><a href="#cb37-547" aria-hidden="true" tabindex="-1"></a>        errors<span class="op">=</span><span class="st">"coerce"</span>,</span>
+<span id="cb37-548"><a href="#cb37-548" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-549"><a href="#cb37-549" aria-hidden="true" tabindex="-1"></a>    out[<span class="st">"_kickoff_dt"</span>] <span class="op">=</span> date_part <span class="op">+</span> time_part.fillna(pd.Timedelta(<span class="dv">0</span>))</span>
+<span id="cb37-550"><a href="#cb37-550" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-551"><a href="#cb37-551" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Team-centric history table:</span></span>
+<span id="cb37-552"><a href="#cb37-552" aria-hidden="true" tabindex="-1"></a>    <span class="co"># - home team keeps home_outcome</span></span>
+<span id="cb37-553"><a href="#cb37-553" aria-hidden="true" tabindex="-1"></a>    <span class="co"># - away team gets inverse outcome</span></span>
+<span id="cb37-554"><a href="#cb37-554" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-555"><a href="#cb37-555" aria-hidden="true" tabindex="-1"></a>    home_hist_cols <span class="op">=</span> [</span>
+<span id="cb37-556"><a href="#cb37-556" aria-hidden="true" tabindex="-1"></a>        <span class="st">"_match_id"</span>, season_col, <span class="st">"_kickoff_dt"</span>, home_col, outcome_col</span>
+<span id="cb37-557"><a href="#cb37-557" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb37-558"><a href="#cb37-558" aria-hidden="true" tabindex="-1"></a>    away_hist_cols <span class="op">=</span> [</span>
+<span id="cb37-559"><a href="#cb37-559" aria-hidden="true" tabindex="-1"></a>        <span class="st">"_match_id"</span>, season_col, <span class="st">"_kickoff_dt"</span>, away_col, outcome_col</span>
+<span id="cb37-560"><a href="#cb37-560" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb37-561"><a href="#cb37-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-562"><a href="#cb37-562" aria-hidden="true" tabindex="-1"></a>    home_hist <span class="op">=</span> out[home_hist_cols].rename(</span>
+<span id="cb37-563"><a href="#cb37-563" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>{home_col: <span class="st">"team"</span>, outcome_col: <span class="st">"team_result"</span>}</span>
+<span id="cb37-564"><a href="#cb37-564" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-565"><a href="#cb37-565" aria-hidden="true" tabindex="-1"></a>    away_hist <span class="op">=</span> out[away_hist_cols].rename(</span>
+<span id="cb37-566"><a href="#cb37-566" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>{away_col: <span class="st">"team"</span>, outcome_col: <span class="st">"team_result"</span>}</span>
+<span id="cb37-567"><a href="#cb37-567" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-568"><a href="#cb37-568" aria-hidden="true" tabindex="-1"></a>    away_hist[<span class="st">"team_result"</span>] <span class="op">=</span> <span class="op">-</span>away_hist[<span class="st">"team_result"</span>]</span>
+<span id="cb37-569"><a href="#cb37-569" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-570"><a href="#cb37-570" aria-hidden="true" tabindex="-1"></a>    team_hist <span class="op">=</span> pd.concat([home_hist, away_hist], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-571"><a href="#cb37-571" aria-hidden="true" tabindex="-1"></a>    team_hist <span class="op">=</span> team_hist.sort_values(</span>
+<span id="cb37-572"><a href="#cb37-572" aria-hidden="true" tabindex="-1"></a>        [season_col, <span class="st">"team"</span>, <span class="st">"_kickoff_dt"</span>, <span class="st">"_match_id"</span>]</span>
+<span id="cb37-573"><a href="#cb37-573" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-574"><a href="#cb37-574" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-575"><a href="#cb37-575" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Overall team form: all venues (home and away matches),</span></span>
+<span id="cb37-576"><a href="#cb37-576" aria-hidden="true" tabindex="-1"></a>    <span class="co"># excluding current match</span></span>
+<span id="cb37-577"><a href="#cb37-577" aria-hidden="true" tabindex="-1"></a>    team_hist[<span class="ss">f"overall_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> (</span>
+<span id="cb37-578"><a href="#cb37-578" aria-hidden="true" tabindex="-1"></a>        team_hist.groupby([season_col, <span class="st">"team"</span>])[<span class="st">"team_result"</span>]</span>
+<span id="cb37-579"><a href="#cb37-579" aria-hidden="true" tabindex="-1"></a>        .transform(<span class="kw">lambda</span> s: s.shift(<span class="dv">1</span>).rolling(n, min_periods<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>())</span>
+<span id="cb37-580"><a href="#cb37-580" aria-hidden="true" tabindex="-1"></a>        .fillna(<span class="dv">0</span>)</span>
+<span id="cb37-581"><a href="#cb37-581" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-582"><a href="#cb37-582" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-583"><a href="#cb37-583" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Merge back: one overall value for home team and one for away team</span></span>
+<span id="cb37-584"><a href="#cb37-584" aria-hidden="true" tabindex="-1"></a>    base_cols <span class="op">=</span> [<span class="st">"_match_id"</span>, <span class="st">"team"</span>, <span class="ss">f"overall_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>]</span>
+<span id="cb37-585"><a href="#cb37-585" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-586"><a href="#cb37-586" aria-hidden="true" tabindex="-1"></a>    home_form <span class="op">=</span> team_hist[base_cols].rename(</span>
+<span id="cb37-587"><a href="#cb37-587" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>{</span>
+<span id="cb37-588"><a href="#cb37-588" aria-hidden="true" tabindex="-1"></a>            <span class="st">"team"</span>: home_col,</span>
+<span id="cb37-589"><a href="#cb37-589" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"overall_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>: <span class="ss">f"home_team_overall_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb37-590"><a href="#cb37-590" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb37-591"><a href="#cb37-591" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-592"><a href="#cb37-592" aria-hidden="true" tabindex="-1"></a>    away_form <span class="op">=</span> team_hist[base_cols].rename(</span>
+<span id="cb37-593"><a href="#cb37-593" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>{</span>
+<span id="cb37-594"><a href="#cb37-594" aria-hidden="true" tabindex="-1"></a>            <span class="st">"team"</span>: away_col,</span>
+<span id="cb37-595"><a href="#cb37-595" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"overall_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>: <span class="ss">f"away_team_overall_form_balance_last_</span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>,</span>
+<span id="cb37-596"><a href="#cb37-596" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb37-597"><a href="#cb37-597" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb37-598"><a href="#cb37-598" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-599"><a href="#cb37-599" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> out.merge(home_form, on<span class="op">=</span>[<span class="st">"_match_id"</span>, home_col], how<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-600"><a href="#cb37-600" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> out.merge(away_form, on<span class="op">=</span>[<span class="st">"_match_id"</span>, away_col], how<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-601"><a href="#cb37-601" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-602"><a href="#cb37-602" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out.drop(columns<span class="op">=</span>[<span class="st">"_match_id"</span>, <span class="st">"_kickoff_dt"</span>])</span>
+<span id="cb37-603"><a href="#cb37-603" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-604"><a href="#cb37-604" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-605"><a href="#cb37-605" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply</span></span>
+<span id="cb37-606"><a href="#cb37-606" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_team_form_last_n(df_eda, n<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb37-607"><a href="#cb37-607" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_team_form_last_n(df_eda, n<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb37-608"><a href="#cb37-608" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_team_form_last_n(df_eda, n<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb37-609"><a href="#cb37-609" aria-hidden="true" tabindex="-1"></a>df_eda <span class="op">=</span> add_team_form_last_n(df_eda, n<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb37-610"><a href="#cb37-610" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-611"><a href="#cb37-611" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-614"><a href="#cb37-614" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-615"><a href="#cb37-615" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb37-616"><a href="#cb37-616" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb37-617"><a href="#cb37-617" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-618"><a href="#cb37-618" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> df_eda.corr(numeric_only<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-619"><a href="#cb37-619" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-620"><a href="#cb37-620" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by absolute correlation with home_outcome</span></span>
+<span id="cb37-621"><a href="#cb37-621" aria-hidden="true" tabindex="-1"></a>target <span class="op">=</span> <span class="st">"home_outcome"</span></span>
+<span id="cb37-622"><a href="#cb37-622" aria-hidden="true" tabindex="-1"></a>corr_with_target <span class="op">=</span> corr_matrix[target].drop(</span>
+<span id="cb37-623"><a href="#cb37-623" aria-hidden="true" tabindex="-1"></a>    target</span>
+<span id="cb37-624"><a href="#cb37-624" aria-hidden="true" tabindex="-1"></a>).sort_values(key<span class="op">=</span><span class="bu">abs</span>, ascending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb37-625"><a href="#cb37-625" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-626"><a href="#cb37-626" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">20</span>))</span>
+<span id="cb37-627"><a href="#cb37-627" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-628"><a href="#cb37-628" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].spines[<span class="st">"top"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-629"><a href="#cb37-629" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].spines[<span class="st">"right"</span>].set_visible(<span class="va">False</span>)</span>
+<span id="cb37-630"><a href="#cb37-630" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-631"><a href="#cb37-631" aria-hidden="true" tabindex="-1"></a><span class="co"># Bar chart: correlation of each feature with home_outcome</span></span>
+<span id="cb37-632"><a href="#cb37-632" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">"#d73027"</span> <span class="cf">if</span> v <span class="op">&lt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">"#4575b4"</span> <span class="cf">for</span> v <span class="kw">in</span> corr_with_target]</span>
+<span id="cb37-633"><a href="#cb37-633" aria-hidden="true" tabindex="-1"></a>corr_with_target.plot(kind<span class="op">=</span><span class="st">"barh"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>], color<span class="op">=</span>colors)</span>
+<span id="cb37-634"><a href="#cb37-634" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(</span>
+<span id="cb37-635"><a href="#cb37-635" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Feature Correlation with </span><span class="sc">{</span>target<span class="sc">}</span><span class="ss">"</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span></span>
+<span id="cb37-636"><a href="#cb37-636" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-637"><a href="#cb37-637" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"Pearson r"</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-638"><a href="#cb37-638" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"black"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb37-639"><a href="#cb37-639" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-640"><a href="#cb37-640" aria-hidden="true" tabindex="-1"></a><span class="co"># Add value labels at the end of each bar</span></span>
+<span id="cb37-641"><a href="#cb37-641" aria-hidden="true" tabindex="-1"></a>max_abs <span class="op">=</span> corr_with_target.<span class="bu">abs</span>().<span class="bu">max</span>()</span>
+<span id="cb37-642"><a href="#cb37-642" aria-hidden="true" tabindex="-1"></a>x_pad <span class="op">=</span> max_abs <span class="op">*</span> <span class="fl">0.15</span> <span class="cf">if</span> max_abs <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb37-643"><a href="#cb37-643" aria-hidden="true" tabindex="-1"></a>offset <span class="op">=</span> (max_abs <span class="op">+</span> x_pad) <span class="op">*</span> <span class="fl">0.02</span></span>
+<span id="cb37-644"><a href="#cb37-644" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> patch, value <span class="kw">in</span> <span class="bu">zip</span>(axes[<span class="dv">0</span>].patches, corr_with_target.values):</span>
+<span id="cb37-645"><a href="#cb37-645" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> patch.get_y() <span class="op">+</span> patch.get_height() <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb37-646"><a href="#cb37-646" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&gt;=</span> <span class="dv">0</span>:</span>
+<span id="cb37-647"><a href="#cb37-647" aria-hidden="true" tabindex="-1"></a>        axes[<span class="dv">0</span>].text(</span>
+<span id="cb37-648"><a href="#cb37-648" aria-hidden="true" tabindex="-1"></a>            value <span class="op">+</span> offset,</span>
+<span id="cb37-649"><a href="#cb37-649" aria-hidden="true" tabindex="-1"></a>            y,</span>
+<span id="cb37-650"><a href="#cb37-650" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb37-651"><a href="#cb37-651" aria-hidden="true" tabindex="-1"></a>            va<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb37-652"><a href="#cb37-652" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb37-653"><a href="#cb37-653" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span></span>
+<span id="cb37-654"><a href="#cb37-654" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb37-655"><a href="#cb37-655" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb37-656"><a href="#cb37-656" aria-hidden="true" tabindex="-1"></a>        axes[<span class="dv">0</span>].text(</span>
+<span id="cb37-657"><a href="#cb37-657" aria-hidden="true" tabindex="-1"></a>            value <span class="op">-</span> offset,</span>
+<span id="cb37-658"><a href="#cb37-658" aria-hidden="true" tabindex="-1"></a>            y,</span>
+<span id="cb37-659"><a href="#cb37-659" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.3f}</span><span class="ss">"</span>,</span>
+<span id="cb37-660"><a href="#cb37-660" aria-hidden="true" tabindex="-1"></a>            va<span class="op">=</span><span class="st">"center"</span>,</span>
+<span id="cb37-661"><a href="#cb37-661" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">"right"</span>,</span>
+<span id="cb37-662"><a href="#cb37-662" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span></span>
+<span id="cb37-663"><a href="#cb37-663" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb37-664"><a href="#cb37-664" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-665"><a href="#cb37-665" aria-hidden="true" tabindex="-1"></a><span class="co"># Heatmap: lower triangle only (includes diagonal)</span></span>
+<span id="cb37-666"><a href="#cb37-666" aria-hidden="true" tabindex="-1"></a><span class="co"># mask = np.triu(np.ones_like(corr_matrix, dtype=bool), k=1)</span></span>
+<span id="cb37-667"><a href="#cb37-667" aria-hidden="true" tabindex="-1"></a>sns.heatmap(corr_matrix, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">".1f"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>, center<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb37-668"><a href="#cb37-668" aria-hidden="true" tabindex="-1"></a>            linewidths<span class="op">=</span><span class="fl">0.0</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>], vmin<span class="op">=-</span><span class="dv">1</span>, vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb37-669"><a href="#cb37-669" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Full Correlation Heatmap"</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">10</span>, loc<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb37-670"><a href="#cb37-670" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-671"><a href="#cb37-671" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb37-672"><a href="#cb37-672" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb37-673"><a href="#cb37-673" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-674"><a href="#cb37-674" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-675"><a href="#cb37-675" aria-hidden="true" tabindex="-1"></a><span class="fu">## **4. Data Preparation Pipeline**</span></span>
+<span id="cb37-676"><a href="#cb37-676" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-679"><a href="#cb37-679" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-680"><a href="#cb37-680" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_home_outcome(score):</span>
+<span id="cb37-681"><a href="#cb37-681" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(score):</span>
+<span id="cb37-682"><a href="#cb37-682" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb37-683"><a href="#cb37-683" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb37-684"><a href="#cb37-684" aria-hidden="true" tabindex="-1"></a>        home_score, away_score <span class="op">=</span> <span class="bu">map</span>(<span class="bu">int</span>, score.split(<span class="st">"–"</span>))</span>
+<span id="cb37-685"><a href="#cb37-685" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> home_score <span class="op">&gt;</span> away_score:</span>
+<span id="cb37-686"><a href="#cb37-686" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb37-687"><a href="#cb37-687" aria-hidden="true" tabindex="-1"></a>        <span class="cf">elif</span> home_score <span class="op">&lt;</span> away_score:</span>
+<span id="cb37-688"><a href="#cb37-688" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb37-689"><a href="#cb37-689" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb37-690"><a href="#cb37-690" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb37-691"><a href="#cb37-691" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb37-692"><a href="#cb37-692" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Error encoding score '</span><span class="sc">{</span>score<span class="sc">}</span><span class="ss">': </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-693"><a href="#cb37-693" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb37-694"><a href="#cb37-694" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-695"><a href="#cb37-695" aria-hidden="true" tabindex="-1"></a><span class="co"># df["home_outcome"] = df_eda["score"].apply(label_home_outcome)</span></span>
+<span id="cb37-696"><a href="#cb37-696" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-697"><a href="#cb37-697" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-700"><a href="#cb37-700" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-701"><a href="#cb37-701" aria-hidden="true" tabindex="-1"></a><span class="co"># Define X and y for modeling</span></span>
+<span id="cb37-702"><a href="#cb37-702" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-703"><a href="#cb37-703" aria-hidden="true" tabindex="-1"></a>df_cleaned <span class="op">=</span> df[df[<span class="st">"score"</span>].notna()]</span>
+<span id="cb37-704"><a href="#cb37-704" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-705"><a href="#cb37-705" aria-hidden="true" tabindex="-1"></a><span class="co"># X = df_cleaned.drop(columns=["score"])</span></span>
+<span id="cb37-706"><a href="#cb37-706" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df_cleaned</span>
+<span id="cb37-707"><a href="#cb37-707" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df_cleaned[<span class="st">"score"</span>].<span class="bu">apply</span>(label_home_outcome)</span>
+<span id="cb37-708"><a href="#cb37-708" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-709"><a href="#cb37-709" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-712"><a href="#cb37-712" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-713"><a href="#cb37-713" aria-hidden="true" tabindex="-1"></a>df_dates <span class="op">=</span> pd.to_datetime(X[<span class="st">"date"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>)</span>
+<span id="cb37-714"><a href="#cb37-714" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-715"><a href="#cb37-715" aria-hidden="true" tabindex="-1"></a>chronological_idx <span class="op">=</span> df_dates.sort_values().index</span>
+<span id="cb37-716"><a href="#cb37-716" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-717"><a href="#cb37-717" aria-hidden="true" tabindex="-1"></a>train_frac <span class="op">=</span> <span class="fl">0.97</span></span>
+<span id="cb37-718"><a href="#cb37-718" aria-hidden="true" tabindex="-1"></a>split_point <span class="op">=</span> <span class="bu">int</span>(<span class="bu">len</span>(chronological_idx) <span class="op">*</span> train_frac)</span>
+<span id="cb37-719"><a href="#cb37-719" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-720"><a href="#cb37-720" aria-hidden="true" tabindex="-1"></a>train_idx <span class="op">=</span> chronological_idx[:split_point]</span>
+<span id="cb37-721"><a href="#cb37-721" aria-hidden="true" tabindex="-1"></a>test_idx <span class="op">=</span> chronological_idx[split_point:]</span>
+<span id="cb37-722"><a href="#cb37-722" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-723"><a href="#cb37-723" aria-hidden="true" tabindex="-1"></a>X_train, X_test <span class="op">=</span> X.loc[train_idx], X.loc[test_idx]</span>
+<span id="cb37-724"><a href="#cb37-724" aria-hidden="true" tabindex="-1"></a>y_train, y_test <span class="op">=</span> y.loc[train_idx], y.loc[test_idx]</span>
+<span id="cb37-725"><a href="#cb37-725" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-726"><a href="#cb37-726" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb37-727"><a href="#cb37-727" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Train: </span><span class="sc">{</span><span class="bu">len</span>(X_train)<span class="sc">}</span><span class="ss"> matches "</span></span>
+<span id="cb37-728"><a href="#cb37-728" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"(</span><span class="sc">{</span>df_dates<span class="sc">.</span>loc[train_idx]<span class="sc">.</span><span class="bu">min</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss"> -&gt; "</span></span>
+<span id="cb37-729"><a href="#cb37-729" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>df_dates<span class="sc">.</span>loc[train_idx]<span class="sc">.</span><span class="bu">max</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss">)"</span></span>
+<span id="cb37-730"><a href="#cb37-730" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-731"><a href="#cb37-731" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb37-732"><a href="#cb37-732" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Test:  </span><span class="sc">{</span><span class="bu">len</span>(X_test)<span class="sc">}</span><span class="ss"> matches "</span></span>
+<span id="cb37-733"><a href="#cb37-733" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"(</span><span class="sc">{</span>df_dates<span class="sc">.</span>loc[test_idx]<span class="sc">.</span><span class="bu">min</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss"> -&gt; "</span></span>
+<span id="cb37-734"><a href="#cb37-734" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>df_dates<span class="sc">.</span>loc[test_idx]<span class="sc">.</span><span class="bu">max</span>()<span class="sc">.</span>date()<span class="sc">}</span><span class="ss">)"</span></span>
+<span id="cb37-735"><a href="#cb37-735" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-736"><a href="#cb37-736" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-737"><a href="#cb37-737" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-740"><a href="#cb37-740" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-741"><a href="#cb37-741" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> Pipeline</span>
+<span id="cb37-742"><a href="#cb37-742" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> MinMaxScaler, RobustScaler</span>
+<span id="cb37-743"><a href="#cb37-743" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-744"><a href="#cb37-744" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.models.feature_transformer <span class="im">import</span> FeatureTransformer</span>
+<span id="cb37-745"><a href="#cb37-745" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-746"><a href="#cb37-746" aria-hidden="true" tabindex="-1"></a>pipeline <span class="op">=</span> Pipeline([</span>
+<span id="cb37-747"><a href="#cb37-747" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'feature_engineering'</span>, FeatureTransformer()),</span>
+<span id="cb37-748"><a href="#cb37-748" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"robust"</span>, RobustScaler()),</span>
+<span id="cb37-749"><a href="#cb37-749" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"minmax"</span>, MinMaxScaler(clip<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb37-750"><a href="#cb37-750" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add other steps like scaling, model, etc. as needed</span></span>
+<span id="cb37-751"><a href="#cb37-751" aria-hidden="true" tabindex="-1"></a>]).set_output(transform<span class="op">=</span><span class="st">"pandas"</span>)</span>
+<span id="cb37-752"><a href="#cb37-752" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-753"><a href="#cb37-753" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit only on the training split so form/rolling stats and scalers don't leak</span></span>
+<span id="cb37-754"><a href="#cb37-754" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-755"><a href="#cb37-755" aria-hidden="true" tabindex="-1"></a><span class="co"># information from the held-out (most recent) </span></span>
+<span id="cb37-756"><a href="#cb37-756" aria-hidden="true" tabindex="-1"></a><span class="co"># matches.X_test_transformed = pipeline.transform(X_test)</span></span>
+<span id="cb37-757"><a href="#cb37-757" aria-hidden="true" tabindex="-1"></a>X_train_transformed <span class="op">=</span> pipeline.fit_transform(X_train)</span>
+<span id="cb37-758"><a href="#cb37-758" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-759"><a href="#cb37-759" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-762"><a href="#cb37-762" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-763"><a href="#cb37-763" aria-hidden="true" tabindex="-1"></a>X_train_transformed</span>
+<span id="cb37-764"><a href="#cb37-764" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb37-765"><a href="#cb37-765" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-766"><a href="#cb37-766" aria-hidden="true" tabindex="-1"></a><span class="fu">## **5. Model Selection &amp; Training**</span></span>
+<span id="cb37-767"><a href="#cb37-767" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-770"><a href="#cb37-770" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb37-771"><a href="#cb37-771" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb37-772"><a href="#cb37-772" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-773"><a href="#cb37-773" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"CUDA available:"</span>, torch.cuda.is_available())</span>
+<span id="cb37-774"><a href="#cb37-774" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Torch CUDA build:"</span>, torch.version.cuda)</span>
+<span id="cb37-775"><a href="#cb37-775" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 
 

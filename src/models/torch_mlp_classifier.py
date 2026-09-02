@@ -214,7 +214,27 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         #     da1  → (m, hidden_size)
         da1 = dz2 @ self.W2.T
 
-        # ReLU derivative: 1 where z1 > 0, else 0
+        # Step 7 — push da1 through ReLU to get dz1 = ∂L/∂z1.
+        # Forward: a1 = ReLU(z1). ReLU is a gate:
+        #     z1 > 0  →  a1 = z1  and  ∂a1/∂z1 = 1  (error may pass)
+        #     z1 ≤ 0  →  a1 = 0   and  ∂a1/∂z1 = 0  (error is blocked)
+        # Chain rule:
+        #     dz1 = da1 * relu'(z1)
+        # We already have da1 from step 6. Multiply element-wise by the
+        # gate so only hidden neurons that actually fired can update W1.
+        #
+        # Our a1 was [1.0, 0.5], so both neurons were on:
+        #     z1         = [1.0,  0.5]     # both > 0
+        #     relu_deriv = [1.0,  1.0]
+        #     da1        = [-0.45, -0.06]
+        #     dz1        = [-0.45*1, -0.06*1] = [-0.45, -0.06]
+        # Both errors pass. If a neuron had z1 ≤ 0, its relu_deriv would
+        # be 0 and that slot of dz1 would be 0 — no blame for W1/b1 on
+        # this sample.
+        #
+        # Next: same pattern as steps 4–5, but with X and dz1 → dW1, db1.
+        #
+        # SHAPE: z1, relu_deriv, da1, dz1 → (m, hidden_size)
         relu_deriv = (self.z1 > 0).float()
         dz1 = da1 * relu_deriv
 

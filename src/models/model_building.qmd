@@ -1,30 +1,34 @@
 ---
 title: '**NN Prediction Model**'
 jupyter: python3
-
+author: David Martínez
+format:
+  html:
+    code-tools: true
+    code-fold: true
 ---
 
+------------------------------------------------------------------------
 
-
-***
 ## **1. Big Picture and Objectives**
 
 ### **Objective**
+
 By June 2026 (end of the Premier League season), develop and evaluate a feedforward (Sequential) neural network that predicts Premier League match outcomes (home win, draw, away win) using historical FBref data scraped from FBref, achieving a **Macro F1-score of at least 0.70** on a held-out test season, while applying the concepts learned in the 'Neural Networks and Deep Learning' course by deeplearning.ai (forward/backward propagation, gradient descent, regularization, and hyperparameter tuning).
 
-> **Why Macro F1 over Accuracy?** The dataset is imbalanced (Home Win ~45%, Away Win ~30%, Draw ~25%). A naive model predicting "Home Win" always achieves ~45% accuracy without learning anything. Macro F1 weights all three classes equally, ensuring the model genuinely learns to predict draws and away wins — not just the dominant class.
+> **Why Macro F1 over Accuracy?** The dataset is imbalanced (Home Win \~45%, Away Win \~30%, Draw \~25%). A naive model predicting "Home Win" always achieves \~45% accuracy without learning anything. Macro F1 weights all three classes equally, ensuring the model genuinely learns to predict draws and away wins — not just the dominant class.
 
 ### **Similar Projects**
+
 The next are good examples of similar projects that have applied neural networks and machine learning techniques to predict football match outcomes:
 
-
-
-- **[lorenzopalaia/Football-Prediction](https://github.com/lorenzopalaia/Football-Prediction)** (Palaia, 2024): Keras NN on historical data; full notebooks for prep/training/eval.
-- **[giovannicampa/football_match_results_prediction](https://github.com/giovannicampa/football_match_results_prediction)** (Campa, 2019): MLP/TensorFlow predict goals/outcomes; 55–59% accuracy.
-- **[AndrewCarterUK/football-predictor](https://github.com/AndrewCarterUK/football-predictor)** (Carter, 2018): Deep NN for Premier League using team stats.
-- **[yuliang419/football-predictor](https://github.com/yuliang419/football-predictor)** (Yuliang, 2022): Simple NN for EPL from recent performance.
+- [**lorenzopalaia/Football-Prediction**](https://github.com/lorenzopalaia/Football-Prediction) (Palaia, 2024): Keras NN on historical data; full notebooks for prep/training/eval.
+- [**giovannicampa/football_match_results_prediction**](https://github.com/giovannicampa/football_match_results_prediction) (Campa, 2019): MLP/TensorFlow predict goals/outcomes; 55–59% accuracy.
+- [**AndrewCarterUK/football-predictor**](https://github.com/AndrewCarterUK/football-predictor) (Carter, 2018): Deep NN for Premier League using team stats.
+- [**yuliang419/football-predictor**](https://github.com/yuliang419/football-predictor) (Yuliang, 2022): Simple NN for EPL from recent performance.
 
 ### **Potential Pipeline**
+
 Get data (FBref historical match data) → Preprocess (clean, feature engineering) → Train/Test split → Build NN model (Keras Sequential) → Train (forward/backward prop, gradient descent) → Evaluate (Macro F1-score on test set) → Hyperparameter tuning → Final evaluation.
 
 ```{python}
@@ -32,7 +36,8 @@ Get data (FBref historical match data) → Preprocess (clean, feature engineerin
 %autoreload 2
 ```
 
-***
+------------------------------------------------------------------------
+
 ## **2. Get the Data**
 
 ```{python}
@@ -84,7 +89,8 @@ df = df.dropna(how="all", subset=cols_to_check)
 df
 ```
 
-***
+------------------------------------------------------------------------
+
 ## **3. Exploratory Analysis and Insights**
 
 ```{python}
@@ -705,4 +711,3 @@ import torch
 print("CUDA available:", torch.cuda.is_available())
 print("Torch CUDA build:", torch.version.cuda)
 ```
-
