@@ -1,29 +1,33 @@
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.optim as optim
 from loguru import logger
-from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.utils.validation import check_array, check_is_fitted, check_X_y
+from sklearn.base import BaseEstimator, ClassifierMixin, check_is_fitted
+from sklearn.utils.validation import check_array, check_X_y
 
 
 class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, hidden_size=32, epochs=1000, lr=0.01):
         """
         Initialize the TorchMLPClassifier.
 
-        input_size: Number of input features.
         hidden_size: Number of hidden units (neurons) in the hidden layer.
-        output_size: Number of output classes (for classification).
+        epochs: Number of training epochs.
+        lr: Learning rate for gradient descent.
+
+        input_size/output_size are not accepted here: they are inferred from
+        X and y in fit() so this classifier can be used as a Pipeline step
+        without knowing the transformed feature count in advance.
         """
+        self.hidden_size = hidden_size
+        self.epochs = epochs
+        self.lr = lr
+
+    def _build_model(self, input_size, output_size) -> None:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {self.device}")
         self.input_size = input_size
-        self.hidden_size = hidden_size
         self.output_size = output_size
-        self._build_model()
-
-    def _build_model(self) -> None:
         # Layer 1
         self.W1 = torch.randn(
             self.input_size,
@@ -249,11 +253,60 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         relu_deriv = (self.z1 > 0).float()
         dz1 = da1 * relu_deriv
 
-        # Gradients for W1 and b1
+        # Step 8 — how should W1 change?  dW1 = ∂L/∂W1
+        # Exact same reasoning as step 4, but one layer earlier.
+        # Input layer:  z1 = X @ W1 + b1
+        # Chain rule:   ∂L/∂W1 = (∂L/∂z1) * (∂z1/∂W1)
+        # We already have ∂L/∂z1 = dz1 (from step 7). z1 depends on W1
+        # through X, so for a whole batch:
+        #     dW1 = (X.T @ dz1) / m
+        # (divide by m = average over the batch)
+        #
+        # Running example:
+        #     X   = [[x0, x1, ...]]     # row vector: one sample, input_size features
+        #     dz1 = [[-0.45, -0.06]]    # row vector: one sample, hidden_size neurons
+        # Each weight update is (input feature) * (hidden error):
+        #     dW1[feature_i, neuron_j] = X[feature_i] * dz1[neuron_j]
+        # Feature i should take as much blame as it contributed to the
+        # error in neuron j.
+        #
+        # SHAPE:
+        #     X.T  → (input_size, m)
+        #     dz1  → (m, hidden_size)
+        #     dW1  → (input_size, hidden_size)   matches W1
         dW1 = X.T @ dz1 / m
+
+        # Step 9 — how should b1 change?  db1 = ∂L/∂b1
+        # Same reasoning as step 5. The bias is added directly:
+        #     z1 = X @ W1 + b1  →  ∂z1/∂b1 = 1
+        # Chain rule then says db1 is just dz1, averaged over the batch:
+        #     db1 = (1/m) Σ dz1
+        # dim=0 sums over samples, leaving one value per hidden neuron.
+        #
+        # Running example (m = 1, nothing to average):
+        #     dz1 = [[-0.45, -0.06]]
+        #     db1 = [-0.45, -0.06]
+        #
+        # SHAPE: db1 → (hidden_size,)   matches b1
         db1 = dz1.sum(axis=0) / m
 
-        # Update parameters
+        # Step 10 — gradient descent: move each weight against its gradient.
+        # Every gradient says "if I increase this weight, the loss increases
+        # by this much." Subtracting lr * gradient nudges the weight in the
+        # direction that reduces the loss.
+        #     new_weight = old_weight - lr * gradient
+        #
+        # torch.no_grad() disables PyTorch's autograd engine during the
+        # update so that these in-place operations are not recorded as
+        # part of the computation graph (we computed gradients manually).
+        #
+        # lr (learning rate) scales how big each step is:
+        #   too large  → overshoots the minimum, loss may diverge
+        #   too small  → converges, but very slowly
+        #
+        # All four parameter tensors are updated in the same way:
+        #     W1, b1 — hidden layer weights and biases
+        #     W2, b2 — output layer weights and biases
         with torch.no_grad():
             self.W1 -= lr * dW1
             self.b1 -= lr * db1
@@ -261,25 +314,68 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
             self.b2 -= lr * db2
 
     def fit(self, X, y):
-        X_t = (
-            torch.tensor(X, dtype=torch.float32)
-            .to(self.device)
+        X, y = check_X_y(X, y)
+        # classes_ + searchsorted map arbitrary labels (e.g. -1/0/1) to the
+        # 0..C-1 indices CrossEntropyLoss/argmax require.
+        self.classes_ = np.unique(y)
+        y_idx = np.searchsorted(self.classes_, y)
+
+        self._build_model(
+            input_size=X.shape[1], output_size=len(self.classes_)
         )
-        y_t = (
-            torch.tensor(y, dtype=torch.float32)
-            .view(-1, 1)
-            .to(self.device)
-        )
+        epochs, lr = self.epochs, self.lr
+
+        # Ensure tensors are on the correct device and dtype
+        X_tensor = torch.tensor(X, dtype=torch.float32, device=self.device)
+        y_tensor = torch.tensor(y_idx, dtype=torch.long, device=self.device)
+
+        losses = []
+        # Cross-Entropy Loss is used here because this is a multi-class
+        # classification problem (Home win / Draw / Away win). CrossEntropyLoss
+        # combines a log-softmax activation with negative log-likelihood loss
+        # in a single numerically stable operation. It penalises the model when
+        #  it assigns low probability to the correct class, pushing the raw
+        # logits (the network's unnormalised output) towards high confidence
+        # for the true label. Because of this, the network's final layer must
+        # output one raw logit per class rather than a probability — the loss
+        # function handles the softmax internally.
+        criterion = nn.CrossEntropyLoss()
+        for epoch in range(epochs):
+            output = self.forward(X_tensor)
+            #  Compute loss using Cross-Entropy Loss
+            loss = criterion(output, y_tensor)
+            losses.append(loss.item())
+            #  update weights
+            self.backward(X_tensor, y_tensor, output, lr)
+            print_step = max(1, epochs // 10)
+            if (epoch + 1) % print_step == 0:
+                logger.info(
+                    f"Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}"
+                )
+        return self
 
     def predict(self, X):
-        # Implement the prediction logic for the MLP classifier here
-        pass
+        check_is_fitted(self, ["W1", "W2"])
+        X = check_array(X)
+        X_tensor = torch.tensor(X, dtype=torch.float32, device=self.device)
+        with torch.no_grad():
+            logits = self.forward(X_tensor)
+            y_idx = torch.argmax(logits, dim=1).cpu().numpy()
+
+        return self.classes_[y_idx]
 
     def predict_proba(self, X):
-        # Implement the probability prediction logic for the MLP classifier here
-        pass
+        check_is_fitted(self, ["W1", "W2"])
+        X = check_array(X)
+        X_tensor = torch.tensor(X, dtype=torch.float32, device=self.device)
+        with torch.no_grad():
+            logits = self.forward(X_tensor)
+            y_proba = torch.softmax(logits, dim=1)
+
+        return y_proba.cpu().numpy()
 
 # TODO check on internet simple MLP classifier implementation in PyTorch and sklearn integration.
 # https://medium.com/@mn05052002/building-a-simple-mlp-from-scratch-using-pytorch-7d50ca66512b
+# https://optuna.org/
 
 # TODO search how they explained in the course or how the code in the code worked
