@@ -7,13 +7,29 @@ from sklearn.utils.validation import check_array, check_X_y
 
 
 class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self, hidden_size=32, epochs=1000, lr=0.01):
+    def __init__(
+        self,
+        hidden_size=32,
+        epochs=1000,
+        lr=0.01,
+        class_weight=None,
+        random_state=None,
+        validation_fraction=0.0,
+        early_stopping_patience=None,
+    ):
         """
         Initialize the TorchMLPClassifier.
 
         hidden_size: Number of hidden units (neurons) in the hidden layer.
         epochs: Number of training epochs.
         lr: Learning rate for gradient descent.
+        class_weight: None or "balanced" (inverse class frequency weights
+        in the loss, so rare classes like draws count more).
+        random_state: Seed for the weight initialisation.
+        validation_fraction: Share of the last (most recent) training rows
+        held out to track validation loss. 0 disables it.
+        early_stopping_patience: Stop after this many epochs without a new
+        best validation loss and restore the best weights. None disables it.
 
         input_size/output_size are not accepted here: they are inferred from
         X and y in fit() so this classifier can be used as a Pipeline step
@@ -22,10 +38,16 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         self.hidden_size = hidden_size
         self.epochs = epochs
         self.lr = lr
+        self.class_weight = class_weight
+        self.random_state = random_state
+        self.validation_fraction = validation_fraction
+        self.early_stopping_patience = early_stopping_patience
 
     def _build_model(self, input_size, output_size) -> None:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {self.device}")
+        if self.random_state is not None:
+            torch.manual_seed(self.random_state)
         self.input_size = input_size
         self.output_size = output_size
         # Layer 1
@@ -64,13 +86,14 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # Return raw logits
         return self.z2
 
-    def backward(self, X, y, output, lr=0.01):
+    def backward(self, X, y, output, lr=0.01, sample_weight=None):
         """
         Backpropagation to compute gradients and update weights.
         X: Input data (m x input_size)
         y: True labels (m x 1)
         output: Output from the forward pass (m x output_size)
         lr: Learning rate
+        sample_weight: Optional per-sample loss weights (m,); None = all 1.
 
         Conventions:
         - m: number of samples
@@ -112,7 +135,10 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # How many samples are in this batch. We will average gradients
         # over m so one example cannot dominate the update.
         # In the running example: 1 row in X → m = 1, so / m does nothing.
-        m = X.shape[0]
+        # With sample weights, m is the sum of the weights (weighted mean).
+        if sample_weight is None:
+            sample_weight = torch.ones(X.shape[0], device=X.device)
+        m = sample_weight.sum()
 
         # Step 1 — turn logits into probabilities.
         # The forward pass ended at z2 (raw scores). Softmax turns those
@@ -147,7 +173,7 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # error one layer back so we can blame the hidden layer (W1, b1).
         #
         # SHAPE: probs, one_hot_y, dz2 → (m, output_size)
-        dz2 = probs - one_hot_y
+        dz2 = (probs - one_hot_y) * sample_weight.unsqueeze(1)
 
         # Step 4 — how should W2 change?  dW2 = ∂L/∂W2
         # Output layer:  z2 = a1 @ W2 + b2
@@ -320,16 +346,50 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         self.classes_ = np.unique(y)
         y_idx = np.searchsorted(self.classes_, y)
 
+        if self.class_weight not in (None, "balanced"):
+            raise ValueError("class_weight must be None or 'balanced'.")
+        n_val = int(len(X) * self.validation_fraction)
+        if self.early_stopping_patience is not None and n_val == 0:
+            raise ValueError(
+                "early_stopping_patience requires validation_fraction > 0."
+            )
+
         self._build_model(
             input_size=X.shape[1], output_size=len(self.classes_)
         )
         epochs, lr = self.epochs, self.lr
 
-        # Ensure tensors are on the correct device and dtype
-        X_tensor = torch.tensor(X, dtype=torch.float32, device=self.device)
-        y_tensor = torch.tensor(y_idx, dtype=torch.long, device=self.device)
+        # Rows are assumed time-ordered, so the tail is the most recent data.
+        if n_val:
+            X_fit, y_fit = X[:-n_val], y_idx[:-n_val]
+        else:
+            X_fit, y_fit = X, y_idx
 
-        losses = []
+        # Ensure tensors are on the correct device and dtype
+        X_tensor = torch.tensor(X_fit, dtype=torch.float32, device=self.device)
+        y_tensor = torch.tensor(y_fit, dtype=torch.long, device=self.device)
+        if n_val:
+            X_val = torch.tensor(
+                X[-n_val:], dtype=torch.float32, device=self.device
+            )
+            y_val = torch.tensor(
+                y_idx[-n_val:], dtype=torch.long, device=self.device
+            )
+
+        class_weights = None
+        sample_weight = None
+        if self.class_weight == "balanced":
+            counts = np.maximum(
+                np.bincount(y_fit, minlength=len(self.classes_)), 1
+            )
+            class_weights = torch.tensor(
+                len(y_fit) / (len(self.classes_) * counts),
+                dtype=torch.float32,
+                device=self.device,
+            )
+            sample_weight = class_weights[y_tensor]
+
+        self.train_losses_, self.val_losses_ = [], []
         # Cross-Entropy Loss is used here because this is a multi-class
         # classification problem (Home win / Draw / Away win). CrossEntropyLoss
         # combines a log-softmax activation with negative log-likelihood loss
@@ -339,19 +399,47 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         # for the true label. Because of this, the network's final layer must
         # output one raw logit per class rather than a probability — the loss
         # function handles the softmax internally.
-        criterion = nn.CrossEntropyLoss()
+        criterion = nn.CrossEntropyLoss(weight=class_weights)
+        best_val, best_state, stale = float("inf"), None, 0
+        params = ("W1", "b1", "W2", "b2")
+        print_step = max(1, epochs // 10)
         for epoch in range(epochs):
             output = self.forward(X_tensor)
             #  Compute loss using Cross-Entropy Loss
             loss = criterion(output, y_tensor)
-            losses.append(loss.item())
+            self.train_losses_.append(loss.item())
             #  update weights
-            self.backward(X_tensor, y_tensor, output, lr)
-            print_step = max(1, epochs // 10)
+            self.backward(X_tensor, y_tensor, output, lr, sample_weight)
+
+            val_loss = None
+            if n_val:
+                with torch.no_grad():
+                    val_loss = criterion(self.forward(X_val), y_val).item()
+                self.val_losses_.append(val_loss)
+                if val_loss < best_val:
+                    best_val, stale = val_loss, 0
+                    best_state = {
+                        p: getattr(self, p).detach().clone() for p in params
+                    }
+                else:
+                    stale += 1
+
             if (epoch + 1) % print_step == 0:
+                val_msg = f", Val loss: {val_loss:.4f}" if n_val else ""
                 logger.info(
-                    f"Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}"
+                    f"Epoch [{epoch+1}/{epochs}], "
+                    f"Loss: {loss.item():.4f}{val_msg}"
                 )
+
+            patience = self.early_stopping_patience
+            if patience is not None and stale >= patience:
+                logger.info(f"Early stopping at epoch {epoch+1}")
+                break
+
+        if self.early_stopping_patience is not None and best_state:
+            with torch.no_grad():
+                for p in params:
+                    getattr(self, p).copy_(best_state[p])
         return self
 
     def predict(self, X):

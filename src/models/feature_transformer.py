@@ -212,7 +212,8 @@ class FeatureTransformer(BaseEstimator, TransformerMixin):
                 )
                 fill_vals = merged_df[["season", "home"]].merge(
                     latest_home, on=["season", "home"], how="left"
-                )["_fill"].values
+                )["_fill"]
+                fill_vals.index = merged_df.index
                 merged_df[home_form_col] = (
                     merged_df[home_form_col].fillna(fill_vals)
                 )
@@ -227,7 +228,8 @@ class FeatureTransformer(BaseEstimator, TransformerMixin):
                 )
                 fill_vals = merged_df[["season", "away"]].merge(
                     latest_away, on=["season", "away"], how="left"
-                )["_fill"].values
+                )["_fill"]
+                fill_vals.index = merged_df.index
                 merged_df[away_form_col] = (
                     merged_df[away_form_col].fillna(fill_vals)
                 )
@@ -352,7 +354,8 @@ class FeatureTransformer(BaseEstimator, TransformerMixin):
                 )
                 fill_vals = merged_df[["season", "home"]].merge(
                     latest_home, on=["season", "home"], how="left"
-                )["_fill"].values
+                )["_fill"]
+                fill_vals.index = merged_df.index
                 merged_df[home_form_col] = (
                     merged_df[home_form_col].fillna(fill_vals)
                 )
@@ -367,7 +370,8 @@ class FeatureTransformer(BaseEstimator, TransformerMixin):
                 )
                 fill_vals = merged_df[["season", "away"]].merge(
                     latest_away, on=["season", "away"], how="left"
-                )["_fill"].values
+                )["_fill"]
+                fill_vals.index = merged_df.index
                 merged_df[away_form_col] = (
                     merged_df[away_form_col].fillna(fill_vals)
                 )
@@ -414,7 +418,11 @@ class FeatureTransformer(BaseEstimator, TransformerMixin):
         return self.feature_names_out_
 
     def transform(self, X):
-        return self._transform(X)
+        # get_dummies only emits categories present in X, so align to the
+        # columns seen at fit time (missing -> 0, unseen -> dropped).
+        return self._transform(X).reindex(
+            columns=self.feature_names_out_, fill_value=0
+        )
 
     def _transform(self, X):
         X = X.copy()
