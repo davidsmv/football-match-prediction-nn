@@ -403,14 +403,34 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
         best_val, best_state, stale = float("inf"), None, 0
         params = ("W1", "b1", "W2", "b2")
         print_step = max(1, epochs // 10)
+
+        # Training loop: one full pass over the data at a time.
+        # Each epoch does:
+        #   1) forward pass -> network produces logits for every sample
+        #   2) compute loss -> tells us how wrong the predictions are
+        #   3) backward pass -> compute gradients for each weight/bias
+        #   4) update parameters -> move weights in a direction that reduces loss
         for epoch in range(epochs):
+            # Forward pass: logits = raw scores for each class before softmax.
+            # Example: for 3 classes, logits might look like [0.9, -0.4, 1.2].
+            # CrossEntropyLoss will convert these into probabilities internally,
+            # then compare them to the true class label.
             output = self.forward(X_tensor)
-            #  Compute loss using Cross-Entropy Loss
+
+            # Loss tells us how far the model is from the correct answer.
+            # Smaller = better. If the model is very confident and correct,
+            # the loss is low; if it's wrong or uncertain, the loss is higher.
             loss = criterion(output, y_tensor)
             self.train_losses_.append(loss.item())
-            #  update weights
+
+            # Backpropagation step:
+            # - compute dW1, db1, dW2, db2 using the chain rule
+            # - then apply gradient descent to reduce the loss
+            # This function is the core learning step.
             self.backward(X_tensor, y_tensor, output, lr, sample_weight)
 
+            # Validation pass: we do not update weights here. We only check how
+            # the model performs on unseen data from the tail of the dataset.
             val_loss = None
             if n_val:
                 with torch.no_grad():
@@ -418,12 +438,15 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
                 self.val_losses_.append(val_loss)
                 if val_loss < best_val:
                     best_val, stale = val_loss, 0
+                    # Save the current state of the network so we can restore the
+                    # best-performing checkpoint if validation starts to worsen.
                     best_state = {
                         p: getattr(self, p).detach().clone() for p in params
                     }
                 else:
                     stale += 1
 
+            # Log every few epochs so we can see whether the loss is going down.
             if (epoch + 1) % print_step == 0:
                 val_msg = f", Val loss: {val_loss:.4f}" if n_val else ""
                 logger.info(
@@ -431,11 +454,14 @@ class TorchMLPClassifier(BaseEstimator, ClassifierMixin):
                     f"Loss: {loss.item():.4f}{val_msg}"
                 )
 
+            # Early stopping: if validation loss does not improve for enough
+            # epochs, stop training to avoid overfitting.
             patience = self.early_stopping_patience
             if patience is not None and stale >= patience:
                 logger.info(f"Early stopping at epoch {epoch+1}")
                 break
 
+        # Restore the best validation weights if early stopping was enabled.
         if self.early_stopping_patience is not None and best_state:
             with torch.no_grad():
                 for p in params:
